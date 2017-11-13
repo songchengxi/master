@@ -12,6 +12,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.scx.system.entity.Company;
+import com.scx.system.entity.CompanyRole;
+import com.scx.system.entity.CompanyRoleUser;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.criterion.Property;
@@ -70,34 +73,19 @@ import org.springframework.web.servlet.ModelAndView;
  * @Description: TODO(用户管理处理类)
  * @author 张代浩
  */
-//@Scope("prototype")
 @Controller
 @RequestMapping("/userController")
 public class UserController extends BaseController {
-	/**
-	 * Logger for this class
-	 */
+
 	private static final Logger logger = Logger.getLogger(UserController.class);
 
+    @Autowired
 	private UserService userService;
+    @Autowired
 	private SystemService systemService;
-
-	@Autowired
-	public void setSystemService(SystemService systemService) {
-		this.systemService = systemService;
-	}
-
-	@Autowired
-	public void setUserService(UserService userService) {
-		this.userService = userService;
-	}
-
 
 	/**
 	 * 菜单列表
-	 * 
-	 * @param request
-	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(params = "menu")
@@ -147,11 +135,8 @@ public class UserController extends BaseController {
 		}
 	}
 
-	
 	/**
 	 * 用户列表页面跳转
-	 * 
-	 * @return
 	 */
 	@RequestMapping(params = "user")
 	public String user(HttpServletRequest request) {
@@ -164,8 +149,6 @@ public class UserController extends BaseController {
 
 	/**
 	 * 用户信息
-	 * 
-	 * @return
 	 */
 	@RequestMapping(params = "userinfo")
 	public String userinfo(HttpServletRequest request) {
@@ -176,8 +159,6 @@ public class UserController extends BaseController {
 
 	/**
 	 * 修改密码
-	 * 
-	 * @return
 	 */
 	@RequestMapping(params = "changepassword")
 	public String changepassword(HttpServletRequest request) {
@@ -191,10 +172,9 @@ public class UserController extends BaseController {
 		request.setAttribute("user", user);
 		return "system/user/changeportrait";
 	}
+
 	/**
 	 * 修改密码
-	 *
-	 * @return
 	 */
 	@RequestMapping(params = "saveportrait")
 	@ResponseBody
@@ -212,11 +192,8 @@ public class UserController extends BaseController {
 		return j;
 	}
 
-
 	/**
 	 * 修改密码
-	 * 
-	 * @return
 	 */
 	@RequestMapping(params = "savenewpwd")
 	@ResponseBody
@@ -239,36 +216,26 @@ public class UserController extends BaseController {
 			systemService.updateEntitie(user);
 			j.setMsg("修改成功");
 			logger.info("["+IpUtil.getIpAddr(request)+"][修改密码]修改成功 userId:"+user.getUserName());
-
 		}
 		return j;
 	}
-	
 
 	/**
-	 * 
 	 * 跳转重置用户密码页面
-	 * @author Chj
 	 */
-	
 	@RequestMapping(params = "changepasswordforuser")
 	public ModelAndView changepasswordforuser(TSUser user, HttpServletRequest req) {
 		logger.info("["+IpUtil.getIpAddr(req)+"][跳转重置用户密码页面]["+user.getUserName()+"]");
 		if (StringUtil.isNotEmpty(user.getId())) {
 			user = systemService.getEntity(TSUser.class, user.getId());
 			req.setAttribute("user", user);
-			idandname(req, user);
-			//System.out.println(user.getPassword()+"-----"+user.getRealName());
+            getRoleInfo(req, user);
 		}
 		return new ModelAndView("system/user/adminchangepwd");
 	}
-	
-	
-	
+
 	/**
 	 * 重置密码
-	 * @param req
-	 * @return
 	 */
 	@RequestMapping(params = "savenewpwdforuser")
 	@ResponseBody
@@ -287,8 +254,6 @@ public class UserController extends BaseController {
 				j.setMsg(message);
 				return j;
 			}
-			
-			//System.out.println(users.getUserName());
 			users.setPassword(PasswordUtil.encrypt(users.getUserName(), password, PasswordUtil.getStaticSalt()));
 			users.setStatus(Globals.User_Normal);
 			users.setActivitiSync(users.getActivitiSync());
@@ -297,16 +262,12 @@ public class UserController extends BaseController {
 			systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
 			logger.info("["+IpUtil.getIpAddr(req)+"][重置密码]"+message);
 		} 
-		
 		j.setMsg(message);
-
 		return j;
 	}
+
 	/**
 	 * 锁定账户
-	
-	 * 
-	 * @author pu.chen
 	 */
 	@RequestMapping(params = "lock")
 	@ResponseBody
@@ -337,12 +298,9 @@ public class UserController extends BaseController {
 		j.setMsg(message);
 		return j;
 	}
-	
 
 	/**
 	 * 得到角色列表
-	 * 
-	 * @return
 	 */
 	@RequestMapping(params = "role")
 	@ResponseBody
@@ -363,14 +321,11 @@ public class UserController extends BaseController {
 
 		roleList.clear();
 		roles.clear();
-
 		return comboBoxs;
 	}
 
 	/**
 	 * 得到部门列表
-	 * 
-	 * @return
 	 */
 	@RequestMapping(params = "depart")
 	@ResponseBody
@@ -396,10 +351,7 @@ public class UserController extends BaseController {
 	}
 
 	/**
-	 * easyuiAJAX用户列表请求数据 
-	 * @param request
-	 * @param response
-	 * @param dataGrid
+	 * 用户列表请求数据
 	 */
 	@RequestMapping(params = "datagrid")
 	public void datagrid(TSUser user,HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
@@ -422,8 +374,6 @@ public class UserController extends BaseController {
 
             cq.add(Property.forName("id").in(subCq.getDetachedCriteria()));
         }
-
-
         cq.add();
         this.systemService.getDataGridReturn(cq, true);
 
@@ -432,10 +382,10 @@ public class UserController extends BaseController {
             if (o instanceof TSUser) {
                 TSUser cfe = (TSUser) o;
                 if (cfe.getId() != null && !"".equals(cfe.getId())) {
-                    List<TSRoleUser> roleUser = systemService.findByProperty(TSRoleUser.class, "TSUser.id", cfe.getId());
+                    List<CompanyRoleUser> roleUser = systemService.findByProperty(CompanyRoleUser.class, "TSUser.id", cfe.getId());
                     if (roleUser.size() > 0) {
                         String roleName = "";
-                        for (TSRoleUser ru : roleUser) {
+                        for (CompanyRoleUser ru : roleUser) {
                             roleName += ru.getTSRole().getRoleName() + ",";
                         }
                         roleName = roleName.substring(0, roleName.length() - 1);
@@ -445,14 +395,11 @@ public class UserController extends BaseController {
                 cfeList.add(cfe);
             }
         }
-
         TagUtil.datagrid(response, dataGrid);
     }
 
 	/**
 	 * 用户删除选择对话框
-	 * 
-	 * @return
 	 */
 	@RequestMapping(params = "deleteDialog")
 	public String deleteDialog(TSUser user,HttpServletRequest request) {
@@ -463,26 +410,19 @@ public class UserController extends BaseController {
 	@RequestMapping(params = "delete")
 	@ResponseBody
 	public AjaxJson delete(TSUser user, @RequestParam String deleteType, HttpServletRequest req) {
-		
-		if (deleteType.equals("delete")) {
-			return this.del(user, req);
-		}else if (deleteType.equals("deleteTrue")) {
-			return this.trueDel(user, req);
-		}else{
-			AjaxJson j = new AjaxJson();
-			
-			j.setMsg("删除逻辑参数异常,请重试.");
-			return j;
-		}
-	}
+        if (deleteType.equals("delete")) {
+            return this.del(user, req);
+        } else if (deleteType.equals("deleteTrue")) {
+            return this.trueDel(user, req);
+        } else {
+            AjaxJson j = new AjaxJson();
+            j.setMsg("删除逻辑参数异常,请重试.");
+            return j;
+        }
+    }
 
-	
 	/**
 	 * 用户信息录入和更新
-	 * 
-	 * @param user
-	 * @param req
-	 * @return
 	 */
 	@RequestMapping(params = "del")
 	@ResponseBody
@@ -502,36 +442,15 @@ public class UserController extends BaseController {
 			userService.updateEntitie(user);
 			message = "用户：" + user.getUserName() + "删除成功";
 			logger.info("["+IpUtil.getIpAddr(req)+"][逻辑删除用户]"+message);
-
-			
-/**
-			if (roleUser.size()>0) {
-				// 删除用户时先删除用户和角色关系表
-				delRoleUser(user);
-
-                systemService.executeSql("delete from t_s_user_org where user_id=?", user.getId()); // 删除 用户-机构 数据
-
-                userService.delete(user);
-				message = "用户：" + user.getUserName() + "删除成功";
-				systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
-			} else {
-				userService.delete(user);
-				message = "用户：" + user.getUserName() + "删除成功";
-			}
-**/	
 		} else {
 			message = "超级管理员不可删除";
 		}
-
 		j.setMsg(message);
 		return j;
 	}
 	
 	/**
 	 * 真实删除
-	 * @param user
-	 * @param req
-	 * @return
 	 */
 	@RequestMapping(params = "trueDel")
 	@ResponseBody
@@ -544,24 +463,6 @@ public class UserController extends BaseController {
 			return j;
 		}
 		user = systemService.getEntity(TSUser.class, user.getId());
-
-		/*List<TSRoleUser> roleUser = systemService.findByProperty(TSRoleUser.class, "TSUser.id", user.getId());
-		if (!user.getStatus().equals(Globals.User_ADMIN)) {
-			if (roleUser.size()>0) {
-				// 删除用户时先删除用户和角色关系表
-				delRoleUser(user);
-                systemService.executeSql("delete from t_s_user_org where user_id=?", user.getId()); // 删除 用户-机构 数据
-                userService.delete(user);
-				message = "用户：" + user.getUserName() + "删除成功";
-				systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
-			} else {
-				userService.delete(user);
-				message = "用户：" + user.getUserName() + "删除成功";
-			}
-		} else {
-			message = "超级管理员不可删除";
-		}*/
-		
 		try {
 			message = userService.trueDel(user);
 			logger.info("["+IpUtil.getIpAddr(req)+"][真实删除用户]"+message);
@@ -569,26 +470,12 @@ public class UserController extends BaseController {
 			e.printStackTrace();
 			message ="删除失败";
 		}
-
-
 		j.setMsg(message);
 		return j;
 	}
 
-	/*public void delRoleUser(TSUser user) {
-		// 同步删除用户角色关联表
-		List<TSRoleUser> roleUserList = systemService.findByProperty(TSRoleUser.class, "TSUser.id", user.getId());
-		if (roleUserList.size() >= 1) {
-			for (TSRoleUser tRoleUser : roleUserList) {
-				systemService.delete(tRoleUser);
-			}
-		}
-	}*/
 	/**
 	 * 检查用户名
-	 * 
-	 * @param ids
-	 * @return
 	 */
 	@RequestMapping(params = "checkUser")
 	@ResponseBody
@@ -607,16 +494,11 @@ public class UserController extends BaseController {
 
 	/**
 	 * 用户录入
-	 * 
-	 * @param user
-	 * @param req
-	 * @return
 	 */
-
 	@RequestMapping(params = "saveUser")
 	@ResponseBody
 	public AjaxJson saveUser(HttpServletRequest req, TSUser user) {
-		String message = null;
+		String message;
 		AjaxJson j = new AjaxJson();
 		// 得到用户的角色
 		String roleid = oConvertUtils.getString(req.getParameter("roleid"));
@@ -628,15 +510,11 @@ public class UserController extends BaseController {
 			users.setMobilePhone(user.getMobilePhone());
 			users.setDevFlag(user.getDevFlag());
 
-            systemService.executeSql("delete from t_s_user_org where user_id=?", user.getId());
-            saveUserOrgList(req, user);
-//            users.setTSDepart(user.getTSDepart());
-
 			users.setRealName(user.getRealName());
 			users.setStatus(Globals.User_Normal);
 			users.setActivitiSync(user.getActivitiSync());
 			systemService.updateEntitie(users);
-			List<TSRoleUser> ru = systemService.findByProperty(TSRoleUser.class, "TSUser.id", user.getId());
+			List<CompanyRoleUser> ru = systemService.findByProperty(CompanyRoleUser.class, "TSUser.id", user.getId());
 			systemService.deleteAllEntitie(ru);
 			message = "用户: " + users.getUserName() + "更新成功";
 			if (StringUtil.isNotEmpty(roleid)) {
@@ -649,134 +527,95 @@ public class UserController extends BaseController {
 				message = "用户: " + users.getUserName() + "已经存在";
 			} else {
 				user.setPassword(PasswordUtil.encrypt(user.getUserName(), password, PasswordUtil.getStaticSalt()));
-//				if (user.getTSDepart().equals("")) {
-//					user.setTSDepart(null);
-//				}
 				user.setStatus(Globals.User_Normal);
 				user.setDeleteFlag(Globals.Delete_Normal);
 				systemService.save(user);
-                // todo zhanggm 保存多个组织机构
-                saveUserOrgList(req, user);
 				message = "用户: " + user.getUserName() + "添加成功";
 				if (StringUtil.isNotEmpty(roleid)) {
 					saveRoleUser(user, roleid);
 				}
 				systemService.addLog(message, Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);
 			}
-
 		}
 		j.setMsg(message);
 		logger.info("["+IpUtil.getIpAddr(req)+"][添加编辑用户]"+message);
 		return j;
 	}
 
-    /**
-     * 保存 用户-组织机构 关系信息
-     * @param request request
-     * @param user user
-     */
-    private void saveUserOrgList(HttpServletRequest request, TSUser user) {
-        String orgIds = oConvertUtils.getString(request.getParameter("orgIds"));
-
-        List<TSUserOrg> userOrgList = new ArrayList<TSUserOrg>();
-        List<String> orgIdList = extractIdListByComma(orgIds);
-        for (String orgId : orgIdList) {
-            TSDepart depart = new TSDepart();
-            depart.setId(orgId);
-
-            TSUserOrg userOrg = new TSUserOrg();
-            userOrg.setTsUser(user);
-            userOrg.setTsDepart(depart);
-
-            userOrgList.add(userOrg);
-        }
-        if (!userOrgList.isEmpty()) {
-            systemService.batchSave(userOrgList);
-        }
-    }
-
-
     protected void saveRoleUser(TSUser user, String roleidstr) {
 		String[] roleids = roleidstr.split(",");
 		for (int i = 0; i < roleids.length; i++) {
-			TSRoleUser rUser = new TSRoleUser();
-			TSRole role = systemService.getEntity(TSRole.class, roleids[i]);
+			CompanyRoleUser rUser = new CompanyRoleUser();
+            CompanyRole role = systemService.getEntity(CompanyRole.class, roleids[i]);
 			rUser.setTSRole(role);
 			rUser.setTSUser(user);
 			systemService.save(rUser);
-
 		}
 	}
 
 	/**
 	 * 用户选择角色跳转页面
-	 * 
-	 * @return
 	 */
 	@RequestMapping(params = "roles")
 	public ModelAndView roles(HttpServletRequest request) {
-		//--author：zhoujf-----start----date:20150531--------for: 编辑用户，选择角色,弹出的角色列表页面，默认没选中
-		ModelAndView mv = new ModelAndView("system/user/users");
+		ModelAndView mv = new ModelAndView("system/company/roleSelect");
 		String ids = oConvertUtils.getString(request.getParameter("ids"));
-		mv.addObject("ids", ids);
+        String companyId = request.getParameter("companyId");
+        mv.addObject("ids", ids);
+        mv.addObject("companyId", companyId);
 		return mv;
 	}
 
 	/**
 	 * 角色显示列表
-	 * 
-	 * @param request
-	 * @param response
-	 * @param dataGrid
 	 */
 	@RequestMapping(params = "datagridRole")
-	public void datagridRole(TSRole tsRole, HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
-		CriteriaQuery cq = new CriteriaQuery(TSRole.class, dataGrid);
+	public void datagridRole(CompanyRole role, HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
+		CriteriaQuery cq = new CriteriaQuery(CompanyRole.class, dataGrid);
 		//查询条件组装器
-		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, tsRole);
+        String companyId = request.getParameter("companyId");
+        cq.eq("companyId",companyId);
+		cq.isNotNull("parentRole");
+		org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, role);
 		this.systemService.getDataGridReturn(cq, true);
 		TagUtil.datagrid(response, dataGrid);
 	}
 
 	/**
 	 * easyuiAJAX请求数据： 用户选择角色列表
-	 * 
-	 * @param request
-	 * @param response
-	 * @param dataGrid
-	 * @param user
 	 */
-	@RequestMapping(params = "addorupdate")
-	public ModelAndView addorupdate(TSUser user, HttpServletRequest req) {
-
-		/*		List<TSDepart> departList = new ArrayList<TSDepart>();
-		String departid = oConvertUtils.getString(req.getParameter("departid"));
-		if(!StringUtil.isEmpty(departid)){
-			departList.add((TSDepart)systemService.getEntity(TSDepart.class,departid));
-		}else {
-			departList.addAll((List)systemService.getList(TSDepart.class));
-		}
-		req.setAttribute("departList", departList);*/
-
-        List<String> orgIdList = new ArrayList<String>();
-        TSDepart tsDepart = new TSDepart();
-		if (StringUtil.isNotEmpty(user.getId())) {
-			user = systemService.getEntity(TSUser.class, user.getId());
-			
-			req.setAttribute("user", user);
-			idandname(req, user);
-			getOrgInfos(req, user);
-		}
-		req.setAttribute("tsDepart", tsDepart);
-        //req.setAttribute("orgIdList", JSON.toJSON(orgIdList));
-
-
+    @RequestMapping(params = "addorupdate")
+    public ModelAndView addorupdate(TSUser user, HttpServletRequest req) {
+        if (StringUtil.isNotEmpty(user.getId())) {
+            user = systemService.getEntity(TSUser.class, user.getId());
+            req.setAttribute("user", user);
+            getRoleInfo(req, user);//角色名称、编码
+            getCompanyInfo(req, user);//公司名称、编码
+        }
         return new ModelAndView("system/user/user");
-	}
+    }
+
+    private void getRoleInfo(HttpServletRequest req, TSUser user) {
+        List<CompanyRoleUser> roleUsers = systemService.findByProperty(CompanyRoleUser.class, "TSUser.id", user.getId());
+        String roleId = "";
+        String roleName = "";
+        if (roleUsers.size() > 0) {
+            for (CompanyRoleUser tRoleUser : roleUsers) {
+                roleId += tRoleUser.getTSRole().getId() + ",";
+                roleName += tRoleUser.getTSRole().getRoleName() + ",";
+            }
+        }
+        req.setAttribute("roleId", roleId);
+        req.setAttribute("roleName", roleName);
+    }
+
+    private void getCompanyInfo(HttpServletRequest req, TSUser user) {
+        Company company = systemService.get(Company.class, user.getCompanyid());
+        req.setAttribute("companyName", company.getName());
+    }
 
     /**
      * 用户的登录后的组织机构选择页面
-     * @param request request
      * @return 用户选择组织机构页面
      */
 	@RequestMapping(params = "userOrgSelect")
@@ -796,37 +635,6 @@ public class UserController extends BaseController {
 		return new ModelAndView("system/user/userOrgSelect");
     }
 
-
-	public void idandname(HttpServletRequest req, TSUser user) {
-		List<TSRoleUser> roleUsers = systemService.findByProperty(TSRoleUser.class, "TSUser.id", user.getId());
-		String roleId = "";
-		String roleName = "";
-		if (roleUsers.size() > 0) {
-			for (TSRoleUser tRoleUser : roleUsers) {
-				roleId += tRoleUser.getTSRole().getId() + ",";
-				roleName += tRoleUser.getTSRole().getRoleName() + ",";
-			}
-		}
-		req.setAttribute("id", roleId);
-		req.setAttribute("roleName", roleName);
-
-	}
-	
-	public void getOrgInfos(HttpServletRequest req, TSUser user) {
-		List<TSUserOrg> tSUserOrgs = systemService.findByProperty(TSUserOrg.class, "tsUser.id", user.getId());
-		String orgIds = "";
-		String departname = "";
-		if (tSUserOrgs.size() > 0) {
-			for (TSUserOrg tSUserOrg : tSUserOrgs) {
-				orgIds += tSUserOrg.getTsDepart().getId() + ",";
-				departname += tSUserOrg.getTsDepart().getDepartname() + ",";
-			}
-		}
-		req.setAttribute("orgIds", orgIds);
-		req.setAttribute("departname", departname);
-
-	}
-	
 	/**
 	 * 根据部门和角色选择用户跳转页面
 	 */
@@ -839,9 +647,6 @@ public class UserController extends BaseController {
 
 	/**
 	 * 部门和角色选择用户的panel跳转页面
-	 * 
-	 * @param request
-	 * @return
 	 */
 	@RequestMapping(params = "chooseUser")
 	public String chooseUser(HttpServletRequest request) {
@@ -854,10 +659,6 @@ public class UserController extends BaseController {
 
 	/**
 	 * 部门和角色选择用户的用户显示列表
-	 * 
-	 * @param request
-	 * @param response
-	 * @param dataGrid
 	 */
 	@RequestMapping(params = "datagridUser")
 	public void datagridUser(HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
@@ -895,9 +696,6 @@ public class UserController extends BaseController {
 
 	/**
 	 * 部门和角色选择用户的panel跳转页面
-	 * 
-	 * @param request
-	 * @return
 	 */
 	@RequestMapping(params = "chooseDepart")
 	public ModelAndView chooseDepart(HttpServletRequest request) {
@@ -913,10 +711,6 @@ public class UserController extends BaseController {
 
 	/**
 	 * 部门和角色选择用户的用户显示列表
-	 * 
-	 * @param request
-	 * @param response
-	 * @param dataGrid
 	 */
 	@RequestMapping(params = "datagridDepart")
 	public void datagridDepart(HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
@@ -927,10 +721,6 @@ public class UserController extends BaseController {
 
 	/**
 	 * 测试
-	 * 
-	 * @param user
-	 * @param req
-	 * @return
 	 */
 	@RequestMapping(params = "test")
 	public void test(HttpServletRequest request, HttpServletResponse response) {
@@ -948,8 +738,6 @@ public class UserController extends BaseController {
 
 	/**
 	 * 用户列表页面跳转
-	 * 
-	 * @return
 	 */
 	@RequestMapping(params = "index")
 	public String index() {
@@ -958,8 +746,6 @@ public class UserController extends BaseController {
 
 	/**
 	 * 用户列表页面跳转
-	 * 
-	 * @return
 	 */
 	@RequestMapping(params = "main")
 	public String main() {
@@ -968,8 +754,6 @@ public class UserController extends BaseController {
 
 	/**
 	 * 测试
-	 * 
-	 * @return
 	 */
 	@RequestMapping(params = "testpage")
 	public String testpage(HttpServletRequest request) {
@@ -978,9 +762,6 @@ public class UserController extends BaseController {
 
 	/**
 	 * 设置签名跳转页面
-	 * 
-	 * @param request
-	 * @return
 	 */
 	@RequestMapping(params = "addsign")
 	public ModelAndView addsign(HttpServletRequest request) {
@@ -991,12 +772,7 @@ public class UserController extends BaseController {
 
 	/**
 	 * 用户录入
-	 * 
-	 * @param user
-	 * @param req
-	 * @return
 	 */
-
 	@RequestMapping(params = "savesign", method = RequestMethod.POST)
 	@ResponseBody
 	public AjaxJson savesign(HttpServletRequest req) {
@@ -1020,10 +796,6 @@ public class UserController extends BaseController {
 	}
 	/**
 	 * 测试组合查询功能
-	 * @param user
-	 * @param request
-	 * @param response
-	 * @param dataGrid
 	 */
 	@RequestMapping(params = "testSearch")
 	public void testSearch(TSUser user, HttpServletRequest request,HttpServletResponse response,DataGrid dataGrid) {
@@ -1063,12 +835,10 @@ public class UserController extends BaseController {
 //		request.setAttribute("cssTheme", cssTheme);
 		return "system/user/changestyle";
 	}
+
 	/**
 	* @Title: saveStyle
 	* @Description: 修改首页样式
-	* @param request
-	* @return AjaxJson    
-	* @throws
 	 */
 	@RequestMapping(params = "savestyle")
 	@ResponseBody
@@ -1122,8 +892,6 @@ public class UserController extends BaseController {
 
 	/**
 	 * 导入功能跳转
-	 *
-	 * @return
 	 */
 	@RequestMapping(params = "upload")
 	public ModelAndView upload(HttpServletRequest req) {
@@ -1133,9 +901,6 @@ public class UserController extends BaseController {
 
 	/**
 	 * 导出excel
-	 *
-	 * @param request
-	 * @param response
 	 */
 	@RequestMapping(params = "exportXls")
 	public String exportXls(TSUser tsUser,HttpServletRequest request,HttpServletResponse response
@@ -1162,7 +927,7 @@ public class UserController extends BaseController {
 			for(TSDepart depart:departs){
 				departCodes += depart.getOrgCode()+",";
 			}
-			user.setDepartid(departCodes.substring(0,departCodes.length()-1));
+			user.setCompanyid(departCodes.substring(0,departCodes.length()-1));
 		}
 		modelMap.put(NormalExcelConstants.FILE_NAME,"用户表");
 		modelMap.put(NormalExcelConstants.CLASS,TSUser.class);
@@ -1174,9 +939,6 @@ public class UserController extends BaseController {
 
 	/**
 	 * 导出excel 使模板
-	 *
-	 * @param request
-	 * @param response
 	 */
 	@RequestMapping(params = "exportXlsByT")
 	public String exportXlsByT(TSUser tsUser,HttpServletRequest request,HttpServletResponse response
@@ -1209,7 +971,7 @@ public class UserController extends BaseController {
 					tsUser.setStatus(new Short("1"));
 					String username = tsUser.getUserName();
 					String roleCodes = tsUser.getUserKey();
-					String deptCodes = tsUser.getDepartid();
+					String deptCodes = tsUser.getCompanyid();
 
 					if(username==null||username.equals("")){
 						j.setMsg("用户名为必填字段，导入失败");
@@ -1219,10 +981,10 @@ public class UserController extends BaseController {
 							//用户存在更新
 							TSUser user = users.get(0);
 							MyBeanUtils.copyBeanNotNull2Bean(tsUser,user);
-							user.setDepartid(null);
+							user.setCompanyid(null);
 							systemService.saveOrUpdate(user);
 						}else{
-							tsUser.setDepartid(null);
+							tsUser.setCompanyid(null);
 							systemService.save(tsUser);
 						}
 					}else{
@@ -1251,7 +1013,7 @@ public class UserController extends BaseController {
 								//用户存在更新
 								TSUser user = users.get(0);
 								MyBeanUtils.copyBeanNotNull2Bean(tsUser,user);
-								user.setDepartid(null);
+								user.setCompanyid(null);
 								systemService.saveOrUpdate(user);
 
 								String id = user.getId();
@@ -1277,7 +1039,7 @@ public class UserController extends BaseController {
 							}else{
 								//不存在则保存
 								//TSUser user = users.get(0);
-								tsUser.setDepartid(null);
+								tsUser.setCompanyid(null);
 								systemService.save(tsUser);
 								for(String roleCode:roles){
 									//根据角色编码得到roleid
@@ -1317,11 +1079,8 @@ public class UserController extends BaseController {
 		return j;
 	}
 
-
 	/**
 	 * 选择用户跳转页面
-	 *
-	 * @return
 	 */
 	@RequestMapping(params = "userSelect")
 	public String userSelect() {

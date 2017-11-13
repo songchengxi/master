@@ -10,21 +10,17 @@ package org.jeecgframework.core.util;
 public class YouBianCodeUtil {
 
 	// 数字位数(默认生成3位的数字)
+	private static final int numLength = 3;//代表数字位数
 
-	private static final int numLength = 2;//代表数字位数
-
-	public static final int zhanweiLength = 1+numLength;
+	public static final int zhanweiLength = 1 + numLength;
 
 	/**
 	 * 根据前一个code，获取同级下一个code
 	 * 例如:当前最大code为D01A04，下一个code为：D01A05
-	 * 
-	 * @param code
-	 * @return
 	 */
 	public static synchronized String getNextYouBianCode(String code) {
-		String newcode = "";
-		if (code == null || code =="") {
+		String newcode;
+		if (code == null || "".equals(code)) {
 			String zimu = "A";
 			String num = getStrNum(1);
 			newcode = zimu + num;
@@ -90,9 +86,6 @@ public class YouBianCodeUtil {
 
 	/**
 	 * 将数字前面位数补零
-	 * 
-	 * @param num
-	 * @return
 	 */
 	private static String getNextStrNum(int num) {
 		return getStrNum(getNextNum(num));
@@ -100,9 +93,6 @@ public class YouBianCodeUtil {
 
 	/**
 	 * 将数字前面位数补零
-	 * 
-	 * @param num
-	 * @return
 	 */
 	private static String getStrNum(int num) {
 		String s = String.format("%0" + numLength + "d", num);
@@ -111,9 +101,6 @@ public class YouBianCodeUtil {
 
 	/**
 	 * 递增获取下个数字
-	 * 
-	 * @param num
-	 * @return
 	 */
 	private static int getNextNum(int num) {
 		num++;
@@ -122,9 +109,6 @@ public class YouBianCodeUtil {
 
 	/**
 	 * 递增获取下个字母
-	 * 
-	 * @param num
-	 * @return
 	 */
 	private static char getNextZiMu(char zimu) {
 		if (zimu == 'Z') {
@@ -136,8 +120,6 @@ public class YouBianCodeUtil {
 	
 	/**
 	 * 根据数字位数获取最大值
-	 * @param length
-	 * @return
 	 */
 	private static int getMaxNumByLength(int length){
 		if(length==0){
@@ -149,6 +131,7 @@ public class YouBianCodeUtil {
 		}
 		return Integer.parseInt(max_num);
 	}
+
 	public static String[] cutYouBianCode(String code){
 		if(code==null||StringUtil.isEmpty(code)){
 			return null;
@@ -162,11 +145,5 @@ public class YouBianCodeUtil {
 			return cutcode;
 		}
 		
-	}
-	public static void main(String[] args) {
-		// org.jeecgframework.core.util.LogUtil.info(getNextZiMu('C'));
-		// org.jeecgframework.core.util.LogUtil.info(getNextNum(8));
-		org.jeecgframework.core.util.LogUtil.info(getSubYouBianCode("C99A01","B03"));
-//		org.jeecgframework.core.util.LogUtil.info(cutYouBianCode("C99A01B01")[2]);
 	}
 }

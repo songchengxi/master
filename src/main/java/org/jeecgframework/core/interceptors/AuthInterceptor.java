@@ -297,7 +297,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         
         //step.2 判断菜单是否有角色权限
         Long authSize = Long.valueOf(0);
-		String sql = "SELECT count(*) FROM t_s_function f,t_s_role_function  rf,t_s_role_user ru " +
+		String sql = "SELECT count(*) FROM t_s_function f,sys_company_role_function rf,sys_company_role_user ru " +
 					" WHERE f.id=rf.functionid AND rf.roleid=ru.roleid AND " +
 					"ru.userid='"+userid+"' AND f.functionurl = '"+requestPath+"'";
 		authSize = this.systemService.getCountForJdbc(sql);

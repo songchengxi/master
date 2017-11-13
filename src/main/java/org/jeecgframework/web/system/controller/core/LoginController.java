@@ -135,15 +135,7 @@ public class LoginController extends BaseController{
 
 				String orgId = req.getParameter("orgId");
 				if (oConvertUtils.isEmpty(orgId)) {
-					// 没有传组织机构参数，则获取当前用户的组织机构
-					Long orgNum = systemService.getCountForJdbc("select count(1) from t_s_user_org where user_id = '" + u.getId() + "'");
-					if (orgNum > 1) {
-						attrMap.put("orgNum", orgNum);
-						attrMap.put("user", u);
-					} else {
-						Map<String, Object> userOrgMap = systemService.findOneForJdbc("select org_id as orgId from t_s_user_org where user_id=?", u.getId());
-						saveLoginSuccessInfo(req, u, (String) userOrgMap.get("orgId"));
-					}
+					saveLoginSuccessInfo(req,u,u.getCompanyid());
 				} else {
 					attrMap.put("orgNum", 1);
 					saveLoginSuccessInfo(req, u, orgId);
@@ -192,9 +184,6 @@ public class LoginController extends BaseController{
         user.setCurrentDepart(currentDepart);
 
         HttpSession session = ContextHolderUtils.getSession();
-
-		user.setDepartid(orgId);
-
 		session.setAttribute(ResourceUtil.LOCAL_CLINET_USER, user);
         message = mutiLangService.getLang("common.user") + ": " + user.getUserName() + "["+ currentDepart.getDepartname() + "]" + mutiLangService.getLang("common.login.success");
 
@@ -403,50 +392,21 @@ public class LoginController extends BaseController{
 		Client client = ClientManager.getInstance().getClient(session.getId());
 
 		if (client.getFunctions() == null || client.getFunctions().size() == 0) {
-
 			Map<String, TSFunction> loginActionlist = new HashMap<String, TSFunction>();
-
-			 /*String hql="from TSFunction t where t.id in  (select d.TSFunction.id from TSRoleFunction d where d.TSRole.id in(select t.TSRole.id from TSRoleUser t where t.TSUser.id ='"+
-	           user.getId()+"' ))";
-	           String hql2="from TSFunction t where t.id in  ( select b.tsRole.id from TSRoleOrg b where b.tsDepart.id in(select a.tsDepart.id from TSUserOrg a where a.tsUser.id='"+
-	           user.getId()+"'))";
-	           List<TSFunction> list = systemService.findHql(hql);
-	           log.info("role functions:  "+list.size());
-	           for(TSFunction function:list){
-	              loginActionlist.put(function.getId(),function);
-	           }
-	           List<TSFunction> list2 = systemService.findHql(hql2);
-	           log.info("org functions: "+list2.size());
-	           for(TSFunction function:list2){
-	              loginActionlist.put(function.getId(),function);
-	           }*/
-
-	           StringBuilder hqlsb1=new StringBuilder("select distinct f from TSFunction f,TSRoleFunction rf,TSRoleUser ru  ").append("where ru.TSRole.id=rf.TSRole.id and rf.TSFunction.id=f.id and ru.TSUser.id=? ");
-
-	           StringBuilder hqlsb2=new StringBuilder("select distinct c from TSFunction c,TSRoleFunction rf,TSRoleOrg b,TSUserOrg a ")
-	           							.append("where a.tsDepart.id=b.tsDepart.id and b.tsRole.id=rf.TSRole.id and rf.TSFunction.id=c.id and a.tsUser.id=?");
-	           //TODO hql执行效率慢 为耗时最多地方
-
+                StringBuilder hqlsb1=new StringBuilder("select distinct f from TSFunction f,CompanyRoleFunction rf,CompanyRoleUser ru  ").append("where ru.TSRole.id=rf.TSRole.id and rf.TSFunction.id=f.id and ru.TSUser.id=? ");
 	           SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	           log.info("================================开始时间:"+sdf.format(new Date())+"==============================");
 	           long start = System.currentTimeMillis();
 	           List<TSFunction> list1 = systemService.findHql(hqlsb1.toString(),user.getId());
-	           List<TSFunction> list2 = systemService.findHql(hqlsb2.toString(),user.getId());
 	           long end = System.currentTimeMillis();
 	           log.info("================================结束时间:"+sdf.format(new Date())+"==============================");
 	           log.info("================================耗时:"+(end-start)+"ms==============================");
 	           for(TSFunction function:list1){
 		              loginActionlist.put(function.getId(),function);
 		       }
-	           for(TSFunction function:list2){
-		              loginActionlist.put(function.getId(),function);
-		       }
             client.setFunctions(loginActionlist);
-
             //清空变量，降低内存使用
-            list2.clear();
             list1.clear();
-
 		}
 		return client.getFunctions();
 	}
