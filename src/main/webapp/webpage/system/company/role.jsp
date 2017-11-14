@@ -8,7 +8,7 @@
 <script type="text/javascript">
 	$(function() {
 		$('#cc').combotree({
-			url : 'departController.do?setPFunction',
+			url : 'companyController.do?selCompany',
             width: 155,
             onSelect : function(node) {
 

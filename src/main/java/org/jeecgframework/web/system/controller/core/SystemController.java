@@ -14,6 +14,7 @@ import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.scx.system.entity.Company;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
 import org.jeecgframework.core.common.dao.jdbc.JdbcDao;
@@ -642,43 +643,51 @@ public class SystemController extends BaseController {
 	}
 
 	/**
-	 * 添加部门
-	 *
-	 * @param depart
-	 * @return
+	 * 添加、编辑部门
 	 */
 	@RequestMapping(params = "saveDepart")
 	@ResponseBody
 	public AjaxJson saveDepart(TSDepart depart, HttpServletRequest request) {
-		String message = null;
+		String message;
 		// 设置上级部门
 		String pid = request.getParameter("TSPDepart.id");
 		if (pid.equals("")) {
 			depart.setTSPDepart(null);
 		}
 		AjaxJson j = new AjaxJson();
-		if (StringUtil.isNotEmpty(depart.getId())) {
-			userService.saveOrUpdate(depart);
+        //编辑
+        if (StringUtil.isNotEmpty(depart.getId())) {
+            userService.saveOrUpdate(depart);
+            if (!oConvertUtils.isNotEmpty(pid)) {
+                Company company = systemService.get(Company.class, depart.getId());
+                company.setName(depart.getDepartname());
+                systemService.saveOrUpdate(company);
+            }
             message = MutiLangUtil.paramUpdSuccess("common.department");
             systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
-
 		} else {
-
-//			String orgCode = systemService.generateOrgCode(depart.getId(), pid);
-//			depart.setOrgCode(orgCode);
-			if(oConvertUtils.isNotEmpty(pid)){
-				TSDepart paretDept = systemService.findUniqueByProperty(TSDepart.class, "id", pid);
-				String localMaxCode  = getMaxLocalCode(paretDept.getOrgCode());
-				depart.setOrgCode(YouBianCodeUtil.getSubYouBianCode(paretDept.getOrgCode(), localMaxCode));
-			}else{
-				String localMaxCode  = getMaxLocalCode(null);
-				depart.setOrgCode(YouBianCodeUtil.getNextYouBianCode(localMaxCode));
-			}
-			depart.setId(UUID.randomUUID().toString().replaceAll("-",""));
-			userService.save(depart);
+            //部门
+            if (oConvertUtils.isNotEmpty(pid)) {
+                TSDepart paretDept = systemService.findUniqueByProperty(TSDepart.class, "id", pid);
+                String localMaxCode = getMaxLocalCode(paretDept.getOrgCode());
+                depart.setOrgCode(YouBianCodeUtil.getSubYouBianCode(paretDept.getOrgCode(), localMaxCode));
+                depart.setCompanyid(paretDept.getCompanyid());
+                depart.setId(UUID.randomUUID().toString().replaceAll("-", ""));
+            } else {//公司
+                String localMaxCode = getMaxLocalCode(null);
+                depart.setOrgCode(YouBianCodeUtil.getNextYouBianCode(localMaxCode));
+                String id = UUID.randomUUID().toString().replaceAll("-", "");
+                depart.setCompanyid(id);
+                depart.setId(id);
+                //公司表新建公司信息
+                Company c = new Company();
+                c.setId(id);
+                c.setName(depart.getDepartname());
+                systemService.save(c);
+            }
+            userService.save(depart);
             message = MutiLangUtil.paramAddSuccess("common.department");
             systemService.addLog(message, Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);
-
         }
 		j.setMsg(message);
 		return j;

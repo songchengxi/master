@@ -1,7 +1,5 @@
 package com.scx.system.entity;
 
-import org.hibernate.annotations.GenericGenerator;
-
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -35,9 +33,7 @@ public class Company implements Serializable{
     private String remark;//备注说明
 
     @Id
-    @GeneratedValue(generator = "paymentableGenerator")
-    @GenericGenerator(name = "paymentableGenerator", strategy = "uuid")
-    @Column(name = "ID", nullable = false, length = 36)
+    @Column(name = "ID", nullable = false, length = 32)
     public String getId() {
         return id;
     }

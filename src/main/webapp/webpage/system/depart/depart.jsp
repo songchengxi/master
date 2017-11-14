@@ -55,6 +55,7 @@
 <body style="overflow-y: hidden" scroll="no">
 <t:formvalid formid="formobj" layout="div" dialog="true" action="systemController.do?saveDepart">
 	<input id="id" name="id" type="hidden" value="${depart.id }">
+	<input name="companyid" type="hidden" value="${depart.companyid }">
 	<fieldset class="step">
         <div class="form">
             <label class="Validform_label"> <t:mutiLang langKey="common.department.name"/>: </label>

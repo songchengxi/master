@@ -18,6 +18,8 @@ public class TSDepart implements Serializable {
 
     private String id;
 
+    private String companyid;//公司
+
     private TSDepart TSPDepart;//上级部门
 
     @Excel(name = "部门名称", width = 20)
@@ -53,6 +55,15 @@ public class TSDepart implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Column(name = "companyid", length = 32)
+    public String getCompanyid() {
+        return companyid;
+    }
+
+    public void setCompanyid(String companyid) {
+        this.companyid = companyid;
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -150,7 +161,7 @@ public class TSDepart implements Serializable {
     public String toString() {
         return "TSDepart{" +
                 "id='" + id + '\'' +
-                ", TSPDepart=" + TSPDepart +
+                ", companyid=" + companyid +
                 ", departname='" + departname + '\'' +
                 ", description='" + description + '\'' +
                 ", orgCode='" + orgCode + '\'' +

@@ -6,12 +6,15 @@ import org.jeecgframework.core.common.dao.jdbc.JdbcDao;
 import org.jeecgframework.core.common.exception.BusinessException;
 import org.jeecgframework.core.common.hibernate.qbc.CriteriaQuery;
 import org.jeecgframework.core.common.model.json.AjaxJson;
+import org.jeecgframework.core.common.model.json.ComboTree;
 import org.jeecgframework.core.common.model.json.DataGrid;
 import org.jeecgframework.core.constant.Globals;
 import org.jeecgframework.core.util.ResourceUtil;
 import org.jeecgframework.core.util.StringUtil;
 import org.jeecgframework.core.util.YouBianCodeUtil;
 import org.jeecgframework.tag.core.easyui.TagUtil;
+import org.jeecgframework.tag.vo.datatable.SortDirection;
+import org.jeecgframework.tag.vo.easyui.ComboTreeModel;
 import org.jeecgframework.web.system.pojo.base.TSDepart;
 import org.jeecgframework.web.system.service.SystemService;
 import org.slf4j.Logger;
@@ -24,10 +27,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 公司管理
@@ -140,9 +140,14 @@ public class CompanyController {
         AjaxJson j = new AjaxJson();
         if (StringUtil.isNotEmpty(t.getId())) {
             systemService.saveOrUpdate(t);
+            TSDepart depart = systemService.get(TSDepart.class, t.getId());
+            depart.setDepartname(t.getName());
+            systemService.saveOrUpdate(depart);
             message = "公司: " + t.getName() + "被更新成功";
             systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
         } else {
+            String id = UUID.randomUUID().toString().replaceAll("-","");
+            t.setId(id);
             systemService.save(t);
             //部门表增加一级分类公司信息
             TSDepart depart = new TSDepart();
@@ -150,7 +155,8 @@ public class CompanyController {
             depart.setOrgCode(YouBianCodeUtil.getNextYouBianCode(localMaxCode));
             depart.setOrgType("1");
             depart.setDepartname(t.getName());
-            depart.setId(t.getId());
+            depart.setId(id);
+            depart.setCompanyid(id);
             systemService.save(depart);
             message = "公司: " + t.getName() + "被添加成功";
             systemService.addLog(message, Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);
@@ -191,6 +197,28 @@ public class CompanyController {
         JSONArray jsonArray = JSONArray.fromObject(companyList);
         j.setMsg(jsonArray.toString());
         return j;
+    }
+
+    /**
+     * 公司选择列表
+     */
+    @RequestMapping(params = "selCompany")
+    @ResponseBody
+    public List<ComboTree> selCompany(HttpServletRequest request, ComboTree comboTree) {
+        CriteriaQuery cq = new CriteriaQuery(Company.class);
+        cq.add();
+        List<Company> companyList = systemService.getListByCriteriaQuery(cq, false);
+        List<ComboTree> comboTrees = new ArrayList<ComboTree>();
+        ComboTreeModel comboTreeModel = new ComboTreeModel("id", "name", "");
+
+        Company defaultCompany = new Company();
+        defaultCompany.setId("");
+        defaultCompany.setName("请选择组织机构");
+        companyList.add(0, defaultCompany);
+
+        comboTrees = systemService.ComboTree(companyList, comboTreeModel, null, true);
+        return comboTrees;
+
     }
 
     private synchronized String getMaxLocalCode(){
