@@ -221,8 +221,9 @@ public class CompanyRoleController {
         if (comboTree.getId() == null) {
             cq.isNull("TSFunction");
         }
+        List<String> parentFuns = null;
         if (role.getParentRole() != null) {
-            List<Object> parentFuns = systemService.findHql("select rf.TSFunction.id from CompanyRoleFunction rf where rf.TSRole.id = ? ", role.getParentRole().getId());
+            parentFuns = systemService.findHql("select rf.TSFunction.id from CompanyRoleFunction rf where rf.TSRole.id = ? ", role.getParentRole().getId());
             Object[] objects = parentFuns.toArray();
             cq.in("id", objects);
         }
@@ -232,7 +233,7 @@ public class CompanyRoleController {
         Collections.sort(functionList, new NumberComparator());
 
         ComboTreeModel comboTreeModel = new ComboTreeModel("id", "functionName", "TSFunctions");
-        comboTrees = comboTree(functionList, comboTreeModel, loginActionlist, true);
+        comboTrees = comboTree(functionList, comboTreeModel, loginActionlist, true, parentFuns);
         MutiLangUtil.setMutiComboTree(comboTrees);
 
         functionList.clear();
@@ -242,10 +243,11 @@ public class CompanyRoleController {
         return comboTrees;
     }
 
-    private List<ComboTree> comboTree(List<TSFunction> all, ComboTreeModel comboTreeModel, List<TSFunction> in, boolean recursive) {
+    private List<ComboTree> comboTree(List<TSFunction> all, ComboTreeModel comboTreeModel,
+                                      List<TSFunction> in, boolean recursive, List<String> parentFuns) {
         List<ComboTree> trees = new ArrayList<ComboTree>();
         for (TSFunction obj : all) {
-            trees.add(comboTree(obj, comboTreeModel, in, recursive));
+            trees.add(comboTree(obj, comboTreeModel, in, recursive, parentFuns));
         }
         all.clear();
         return trees;
@@ -259,7 +261,8 @@ public class CompanyRoleController {
      * @param in
      * @param recursive      是否递归子节点
      */
-    private ComboTree comboTree(TSFunction obj, ComboTreeModel comboTreeModel, List<TSFunction> in, boolean recursive) {
+    private ComboTree comboTree(TSFunction obj, ComboTreeModel comboTreeModel, List<TSFunction> in,
+                                boolean recursive, List<String> parentFuns) {
         ComboTree tree = new ComboTree();
         String id = oConvertUtils.getString(obj.getId());
         tree.setId(id);
@@ -299,8 +302,10 @@ public class CompanyRoleController {
             if (recursive) { // 递归查询子节点
                 List<ComboTree> children = new ArrayList<ComboTree>();
                 for (TSFunction childObj : curChildList) {
-                    ComboTree t = comboTree(childObj, comboTreeModel, in, recursive);
-                    children.add(t);
+                    if (parentFuns == null || parentFuns.contains(childObj.getId())) {
+                        ComboTree t = comboTree(childObj, comboTreeModel, in, recursive, parentFuns);
+                        children.add(t);
+                    }
                 }
                 tree.setChildren(children);
             }
