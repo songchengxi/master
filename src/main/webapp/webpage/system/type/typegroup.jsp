@@ -1,4 +1,4 @@
-<%@ page language="java" import="java.util.*" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@include file="/context/mytags.jsp"%>
 <!DOCTYPE html>
 <html>
@@ -12,10 +12,10 @@
 	<fieldset class="step">
 	<div class="form">
 	<label class="Validform_label"> <t:mutiLang langKey="common.code"/>: </label> 
-	<input name="typegroupcode" class="inputxt" validType="t_s_typegroup,typegroupcode,id" value="${typegroup.typegroupcode }" datatype="s2-10"> <span class="Validform_checktip"><t:mutiLang langKey="common.code.range" langArg="common.code,common.range2to8"/></span></div>
+	<input name="typegroupcode" class="inputxt" validType="t_s_typegroup,typegroupcode,id" value="${typegroup.typegroupcode }" datatype="s2-20"> <span class="Validform_checktip">编码范围在2~20位字符</span></div>
 	<div class="form">
 	<label class="Validform_label"> <t:mutiLang langKey="common.name"/>: </label> 
-	<input name="typegroupname" class="inputxt" value="${typegroup.typegroupname }" datatype="s2-10"> <span class="Validform_checktip"><t:mutiLang langKey="common.name.range" langArg="common.name,common.range2to10"/></span></div>
+	<input name="typegroupname" class="inputxt" value="${typegroup.typegroupname }" datatype="s2-20"> <span class="Validform_checktip">名称范围在2~20位字符</span></div>
 	</fieldset>
 </t:formvalid>
 </body>

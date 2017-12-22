@@ -1318,8 +1318,6 @@ public class DataGridTag extends JeecgTag {
 			sb.append("nowrap:false,");
 		}
 
-		sb.append("rownumbers: true,");
-
 		if(hasQueryColum(columnList)){
 			String queryParams = "";
 			queryParams += "queryParams:{";
@@ -1924,17 +1922,17 @@ public class DataGridTag extends JeecgTag {
 					}else if("group".equals(col.getQueryMode())){
 
 						if(this.DATE_FORMATTER.equals(col.getFormatter())){
-							sb.append("<input type=\"text\" name=\""+col.getField()+"_begin\"  style=\"width: 94px\" "+extendAttribute(col.getExtend())+" class=\"Wdate\" onClick=\"WdatePicker()\"/>");
+							sb.append("<input type=\"text\" name=\""+col.getField()+"_begin\" style=\"width: 94px\" "+extendAttribute(col.getExtend())+" class=\"Wdate\" onClick=\"WdatePicker()\"/>");
 							sb.append("<span style=\"display:-moz-inline-box;display:inline-block;width: 8px;text-align:right;\">~</span>");
 							sb.append("<input type=\"text\" name=\""+col.getField()+"_end\"  style=\"width: 94px\" "+extendAttribute(col.getExtend())+" class=\"Wdate\" onClick=\"WdatePicker()\"/>");
 						}else if(this.DATETIME_FORMATTER.equals(col.getFormatter())){
-							sb.append("<input type=\"text\" name=\""+col.getField()+"_begin1\"  style=\"width: 140px\" "+extendAttribute(col.getExtend())+" class=\"Wdate\" onClick=\"WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})\"/>");
+							sb.append("<input type=\"text\" name=\""+col.getField()+"_begin\" style=\"width: 140px\" "+extendAttribute(col.getExtend())+" class=\"Wdate\" onClick=\"WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})\"/>");
 							sb.append("<span style=\"display:-moz-inline-box;display:inline-block;width: 8px;text-align:right;\">~</span>");
-							sb.append("<input type=\"text\" name=\""+col.getField()+"_end2\"  style=\"width: 140px\" "+extendAttribute(col.getExtend())+" class=\"Wdate\" onClick=\"WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})\"/>");
+							sb.append("<input type=\"text\" name=\""+col.getField()+"_end\" style=\"width: 140px\" "+extendAttribute(col.getExtend())+" class=\"Wdate\" onClick=\"WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})\"/>");
 						}else{
-							sb.append("<input type=\"text\" name=\""+col.getField()+"_begin\"  style=\"width: 94px\" "+extendAttribute(col.getExtend())+" class=\"inuptxt\"/>");
+							sb.append("<input type=\"text\" name=\""+col.getField()+"_begin\" style=\"width: 94px\" "+extendAttribute(col.getExtend())+" class=\"inuptxt\"/>");
 							sb.append("<span style=\"display:-moz-inline-box;display:inline-block;width: 8px;text-align:right;\">~</span>");
-							sb.append("<input type=\"text\" name=\""+col.getField()+"_end\"  style=\"width: 94px\" "+extendAttribute(col.getExtend())+" class=\"inuptxt\"/>");
+							sb.append("<input type=\"text\" name=\""+col.getField()+"_end\" style=\"width: 94px\" "+extendAttribute(col.getExtend())+" class=\"inuptxt\"/>");
 						}
 
 					}

@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.scx.system.entity.CompanyRoleUser;
 import org.jeecgframework.web.system.pojo.base.TSLog;
 import org.jeecgframework.web.system.pojo.base.TSRoleUser;
 import org.jeecgframework.web.system.pojo.base.TSUser;
@@ -52,10 +53,10 @@ public class UserServiceImpl extends CommonServiceImpl implements UserService {
 	
 	@Override
 	public String trueDel(TSUser user) {
-		String message = "";
-		List<TSRoleUser> roleUser = this.commonDao.findByProperty(TSRoleUser.class, "TSUser.id", user.getId());
+		String message;
+		List<CompanyRoleUser> roleUser = this.commonDao.findByProperty(CompanyRoleUser.class, "TSUser.id", user.getId());
 		if (!user.getStatus().equals(Globals.User_ADMIN)) {
-			if (roleUser.size()>0) {
+			if (roleUser.size() > 0) {
 				// 删除用户时先删除用户和角色关系表
 				delRoleUser(user);
 				this.commonDao.executeSql("delete from t_s_user_org where user_id=?", user.getId()); // 删除 用户-机构 数据
@@ -74,10 +75,10 @@ public class UserServiceImpl extends CommonServiceImpl implements UserService {
 	
 	private void delRoleUser(TSUser user) {
 		// 同步删除用户角色关联表
-		List<TSRoleUser> roleUserList = this.commonDao.findByProperty(TSRoleUser.class, "TSUser.id", user.getId());
+		List<CompanyRoleUser> roleUserList = this.commonDao.findByProperty(CompanyRoleUser.class, "TSUser.id", user.getId());
 		if (roleUserList.size() >= 1) {
-			for (TSRoleUser tRoleUser : roleUserList) {
-				this.commonDao.delete(tRoleUser);
+			for (CompanyRoleUser roleUser : roleUserList) {
+				this.commonDao.delete(roleUser);
 			}
 		}
 	}
