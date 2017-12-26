@@ -1,8 +1,10 @@
 package com.scx.hr.entity;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 员工社保设置
@@ -12,13 +14,14 @@ import java.util.Date;
 public class HRUserSocial implements Serializable {
 
     private String userId;
-    private Date socialStart;//起缴月
+    private String socialStart;//起缴月
     private Double socialBase;//社保缴费基数
     private Double socialComVal;//社保公司缴费数额
     private Double socialUserVal;//社保个人缴纳数额
     private Double fundBase;//公积金缴费基数
     private Double fundComVal;//公积金公司缴纳数额
     private Double fundUserVal;//公积金个人缴纳数额
+    private Short deleteFlag;//删除标记   0：存在；1：已删除
 
     @Id
     @Column(name = "USER_ID", nullable = true, length = 36)
@@ -30,12 +33,12 @@ public class HRUserSocial implements Serializable {
         this.userId = userId;
     }
 
-    @Column(name = "SOCIAL_START", nullable = true)
-    public Date getSocialStart() {
+    @Column(name = "SOCIAL_START", nullable = true, length = 10)
+    public String getSocialStart() {
         return socialStart;
     }
 
-    public void setSocialStart(Date socialStart) {
+    public void setSocialStart(String socialStart) {
         this.socialStart = socialStart;
     }
 
@@ -93,6 +96,15 @@ public class HRUserSocial implements Serializable {
         this.fundUserVal = fundUserVal;
     }
 
+    @Column(name = "delete_flag")
+    public Short getDeleteFlag() {
+        return deleteFlag;
+    }
+
+    public void setDeleteFlag(Short deleteFlag) {
+        this.deleteFlag = deleteFlag;
+    }
+
     @Override
     public String toString() {
         return "HRUserSocial{" +
@@ -104,6 +116,7 @@ public class HRUserSocial implements Serializable {
                 ", fundBase=" + fundBase +
                 ", fundComVal=" + fundComVal +
                 ", fundUserVal=" + fundUserVal +
+                ", deleteFlag=" + deleteFlag +
                 '}';
     }
 }

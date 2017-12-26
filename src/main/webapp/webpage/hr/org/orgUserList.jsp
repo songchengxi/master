@@ -13,7 +13,7 @@
             <t:dgCol title="职位" field="user.position" width="120"></t:dgCol>
             <t:dgCol title="职称" field="user.title" width="120"></t:dgCol>
             <t:dgCol title="入职日期" field="user.joinTime" formatter="yyyy-MM-dd" width="120"></t:dgCol>
-            <t:dgCol title="在职状态" field="user.jobStatus" width="120"></t:dgCol>
+            <t:dgCol title="在职状态" field="user.jobStatus" dictionary="jobStatus" width="120"></t:dgCol>
             <t:dgCol title="合同期限" field="user.contractTerm" formatter="yyyy-MM-dd" width="120"></t:dgCol>
         </t:datagrid>
     </div>

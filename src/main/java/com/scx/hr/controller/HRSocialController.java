@@ -12,7 +12,6 @@ import org.jeecgframework.core.util.MyBeanUtils;
 import org.jeecgframework.core.util.ResourceUtil;
 import org.jeecgframework.core.util.StringUtil;
 import org.jeecgframework.tag.core.easyui.TagUtil;
-import org.jeecgframework.web.cgform.entity.config.CgFormHeadEntity;
 import org.jeecgframework.web.system.pojo.base.TSUser;
 import org.jeecgframework.web.system.service.SystemService;
 import org.slf4j.Logger;
@@ -72,11 +71,11 @@ public class HRSocialController {
         //查询条件组装器
         org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, social, request.getParameterMap());
         try {
+            //自定义追加查询条件
             String parentId = request.getParameter("parentId");
             cq.eq("parent.id", parentId);
             TSUser sessionUser = ResourceUtil.getSessionUser();
             cq.eq("companyId", sessionUser.getCompanyid());
-            //自定义追加查询条件
         } catch (Exception e) {
             throw new BusinessException(e.getMessage());
         }
@@ -84,6 +83,52 @@ public class HRSocialController {
         this.systemService.getDataGridReturn(cq, true);
         dataGrid.setFooter("companyProportion,userProportion,companyVal,userVal,name:合计");
         TagUtil.datagrid(response, dataGrid);
+    }
+
+    /**
+     * 删除社保
+     */
+    @RequestMapping(params = "del")
+    @ResponseBody
+    public AjaxJson del(HRSocialSecurity social, HttpServletRequest request) {
+        String message;
+        AjaxJson j = new AjaxJson();
+        social = systemService.getEntity(HRSocialSecurity.class, social.getId());
+        systemService.delete(social);
+        message = social.getName() + " 删除成功";
+        systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
+        j.setMsg(message);
+        return j;
+    }
+
+    /**
+     * 启用、停用
+     */
+    @RequestMapping(params = "openAndClose")
+    @ResponseBody
+    public AjaxJson openAndClose(HRSocialSecurity social) {
+        String message = "";
+        AjaxJson j = new AjaxJson();
+        social = systemService.get(HRSocialSecurity.class, social.getId());
+        if ("Y".equals(social.getStatus())) {
+            social.setStatus("N");
+            message = social.getName() + "停用成功";
+        } else if ("N".equals(social.getStatus())) {
+            social.setStatus("Y");
+            message = social.getName() + "启用成功";
+        }
+        systemService.updateEntitie(social);
+        systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
+        j.setMsg(message);
+        return j;
+    }
+
+    /**
+     * 计算器
+     */
+    @RequestMapping(params = "openCalculator")
+    public ModelAndView openCalculator() {
+        return new ModelAndView("hr/calculator/calculator");
     }
 
     /**
@@ -142,46 +187,94 @@ public class HRSocialController {
      */
     @RequestMapping(params = "userSocialList")
     public void userSocialList(HRSocialSecurity social, HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) {
+        String userName = request.getParameter("userName");
+        if (null == userName) {
+            userName = "";
+        }
         TSUser user = ResourceUtil.getSessionUser();
         String sql = "SELECT * FROM ( " +
                 " SELECT u.*,GROUP_CONCAT(d.departname) AS departName FROM ( " +
-                "  SELECT u.id AS user_id,u.name,u.join_time,o.org_id FROM hr_user u LEFT JOIN hr_user_org o ON u.id=o.user_id WHERE u.COMPANY_ID=? AND u.delete_flag=0 " +
-                " ) u LEFT JOIN t_s_depart d ON u.org_id = d.ID GROUP BY u.user_id " +
-                ") u LEFT JOIN hr_user_social s ON u.user_id=s.user_id";
+                "  SELECT u.id AS uid,u.name,u.join_time,u.job_status,o.org_id FROM hr_user u LEFT JOIN hr_user_org o ON u.id=o.user_id " +
+                "   WHERE u.COMPANY_ID=? AND u.delete_flag=? AND u.name LIKE ? " +
+                " ) u LEFT JOIN t_s_depart d ON u.org_id = d.ID GROUP BY u.uid " +
+                ") u LEFT JOIN hr_user_social s ON u.uid=s.user_id";
 
-        ///master/hrSocialController.do?userSocialList=&field=id,userName,departName,joinTime,socialStart,socialBase,departName,departName,fundBase,fundComVal,fundUserVal,&page=1&rows=10&
-        List<Map<String, Object>> resultList = systemService.findForJdbcParam(sql, dataGrid.getPage(), dataGrid.getRows(), user.getCompanyid());
+        List<Map<String, Object>> resultList = systemService.findForJdbcParam(sql, dataGrid.getPage(), dataGrid.getRows(), user.getCompanyid(), 0, "%" + userName + "%");
         //将List转换成JSON存储
-        List<Map<String, Object>> noticeList = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> socialList = new ArrayList<Map<String, Object>>();
         if (resultList != null && resultList.size() > 0) {
             for (int i = 0; i < resultList.size(); i++) {
                 Map<String, Object> obj = resultList.get(i);
                 Map<String, Object> n = new HashMap<String, Object>();
-                n.put("id", String.valueOf(obj.get("id")));
-                n.put("isRead", String.valueOf(obj.get("is_read")));
-                noticeList.add(n);
+                n.put("id", String.valueOf(obj.get("user_id")));
+                n.put("userName", String.valueOf(obj.get("name")));
+                n.put("departName", String.valueOf(obj.get("departName")));
+                n.put("joinTime", String.valueOf(obj.get("join_time")));
+                n.put("jobStatus", String.valueOf(obj.get("job_status")));
+                if (!"null".equals(String.valueOf(obj.get("social_start")))) {
+                    n.put("insure", "Y");//是否参保
+                    n.put("socialStart", String.valueOf(obj.get("social_start")));
+                    n.put("socialBase", String.valueOf(obj.get("social_base")));
+                    n.put("socialComVal", String.valueOf(obj.get("social_com_val")));
+                    n.put("socialUserVal", String.valueOf(obj.get("social_user_val")));
+                    n.put("fundBase", String.valueOf(obj.get("fund_base")));
+                    n.put("fundComVal", String.valueOf(obj.get("fund_com_val")));
+                    n.put("fundUserVal", String.valueOf(obj.get("fund_user_val")));
+                } else {
+                    n.put("insure", "N");
+                }
+                socialList.add(n);
             }
         }
-        dataGrid.setResults(noticeList);
-        String getCountSql = "SELECT COUNT(*) FROM ( " +
+        dataGrid.setResults(socialList);
+        String countSql = "SELECT COUNT(*) FROM ( " +
                 " SELECT u.*,GROUP_CONCAT(d.departname) AS departName FROM ( " +
-                "  SELECT u.id,u.name,u.join_time,o.org_id FROM hr_user u LEFT JOIN hr_user_org o ON u.id=o.user_id WHERE u.COMPANY_ID = ? AND u.delete_flag = 0 " +
-                " ) u LEFT JOIN t_s_depart d ON u.org_id = d.ID GROUP BY u.id " +
-                ") u LEFT JOIN hr_user_social s ON u.id=s.ID";
-        Long count = systemService.getCountForJdbcParam(getCountSql, new Object[]{user.getCompanyid()});
+                "  SELECT u.id AS uid,u.name,u.join_time,u.job_status,o.org_id FROM hr_user u LEFT JOIN hr_user_org o ON u.id=o.user_id " +
+                "   WHERE u.COMPANY_ID=? AND u.delete_flag=? AND u.name LIKE ? " +
+                "  ) u LEFT JOIN t_s_depart d ON u.org_id = d.ID GROUP BY u.uid " +
+                " ) u LEFT JOIN hr_user_social s ON u.uid=s.user_id";
+        Long count = systemService.getCountForJdbcParam(countSql, new Object[]{user.getCompanyid(), 0, "%" + userName + "%"});
         dataGrid.setTotal(Integer.parseInt(String.valueOf(count)));
-        dataGrid.setFooter("companyProportion,userProportion,companyVal,userVal,name:合计");
         TagUtil.datagrid(response, dataGrid);
     }
 
     /**
-     * 员工社保信息编辑
+     * 员工社保信息编辑界面跳转
      */
     @RequestMapping(params = "goUserSocial")
-    public ModelAndView goUserSocial(HttpServletRequest request, String id) {
+    public ModelAndView goUserSocial(HttpServletRequest request) {
+        TSUser sessionUser = ResourceUtil.getSessionUser();
+        String id = request.getParameter("id");
         if (StringUtil.isNotEmpty(id)) {
             HRUserSocial userSocial = systemService.get(HRUserSocial.class, id);
             request.setAttribute("userSocial", userSocial);
+
+            String insure = request.getParameter("insure");
+            if ("N".equals(insure)) {//参保
+                Map<String, Object> map = new HashMap<String, Object>();
+                String sql = "SELECT a.base, SUM(a.company_val) comVal,SUM(a.user_val) userVal FROM hr_social_security a WHERE a.parent_id = (\n" +
+                        " SELECT s.id FROM hr_social_security s WHERE s.company_id=? AND s.code=?)";
+                List<Map<String, Object>> social = systemService.findForJdbc(sql, sessionUser.getCompanyid(), "SB");//社保
+                List<Map<String, Object>> fund = systemService.findForJdbc(sql, sessionUser.getCompanyid(), "GJJ");//公积金
+                if (!social.isEmpty()) {
+                    for (int i = 0; i < social.size(); i++) {
+                        Map<String, Object> m = social.get(i);
+                        map.put("socialBase", String.valueOf(m.get("base")));
+                        map.put("socialCom", String.valueOf(m.get("comVal")));
+                        map.put("socialUser", String.valueOf(m.get("userVal")));
+                    }
+                }
+                if (!fund.isEmpty()) {
+                    for (int i = 0; i < fund.size(); i++) {
+                        Map<String, Object> m = fund.get(i);
+                        map.put("fundBase", String.valueOf(m.get("base")));
+                        map.put("fundCom", String.valueOf(m.get("comVal")));
+                        map.put("fundUser", String.valueOf(m.get("userVal")));
+                    }
+                }
+                request.setAttribute("val", map);
+            }
+            request.setAttribute("insure", insure);
         }
         return new ModelAndView("hr/social/userSocial");
     }
@@ -191,8 +284,20 @@ public class HRSocialController {
      */
     @RequestMapping(params = "saveUserSocial")
     @ResponseBody
-    public AjaxJson saveUserSocial() {
+    public AjaxJson saveUserSocial(HRUserSocial social) {
+        String message;
         AjaxJson j = new AjaxJson();
+        if (StringUtil.isNotEmpty(social.getUserId())) {
+            message = "社保信息 更新成功";
+            systemService.saveOrUpdate(social);
+            systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
+        } else {
+            message = "社保信息 添加成功";
+            social.setDeleteFlag(Globals.Delete_Normal);
+            systemService.save(social);
+            systemService.addLog(message, Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);
+        }
+        j.setMsg(message);
         return j;
     }
 }

@@ -15,7 +15,7 @@
             <t:dgCol title="天数" field="dayNum" width="120"></t:dgCol>
             <t:dgCol title="操作" field="opt" width="100"></t:dgCol>
             <t:dgDelOpt title="删除" url="hrLeaveController.do?doDel&id={id}" urlStyle="background-color:#ec4758;" urlclass="ace_button" urlfont="fa-trash-o"/>
-            <t:dgToolBar title="录入" icon="icon-add" url="hrLeaveController.do?addOrUpdate" funname="add"></t:dgToolBar>
+            <t:dgToolBar title="添加" icon="icon-add" url="hrLeaveController.do?addOrUpdate" funname="add"></t:dgToolBar>
             <t:dgToolBar title="编辑" icon="icon-edit" url="hrLeaveController.do?addOrUpdate" funname="update"></t:dgToolBar>
             <%--<t:dgToolBar title="批量删除" icon="icon-remove" url="hrLeaveController.do?doBatchDel" funname="deleteALLSelect"></t:dgToolBar>--%>
             <%--<t:dgToolBar title="查看" icon="icon-search" url="hrLeaveController.do?goUpdate" funname="detail"></t:dgToolBar>--%>

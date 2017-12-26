@@ -47,6 +47,7 @@ public class TreatyController {
         org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, treaty);
         TSUser sessionUser = ResourceUtil.getSessionUser();
         cq.eq("companyId", sessionUser.getCompanyid());
+        cq.eq("deleteFlag", Globals.Delete_Normal);
         cq.add();
         this.systemService.getDataGridReturn(cq, true);
         TagUtil.datagrid(response, dataGrid);
@@ -61,8 +62,9 @@ public class TreatyController {
         String message;
         AjaxJson j = new AjaxJson();
         HRUserTreaty entity = systemService.getEntity(HRUserTreaty.class, id);
+        entity.setDeleteFlag(Globals.Delete_Forbidden);
+        systemService.updateEntitie(entity);
         message = "合同信息 删除成功";
-        systemService.delete(entity);
         systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
         j.setMsg(message);
         return j;
@@ -96,6 +98,7 @@ public class TreatyController {
             message = "合同信息 添加成功";
             TSUser user = ResourceUtil.getSessionUser();
             treaty.setCompanyId(user.getCompanyid());
+            treaty.setDeleteFlag(Globals.Delete_Normal);
             systemService.save(treaty);
             systemService.addLog(message, Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);
         }

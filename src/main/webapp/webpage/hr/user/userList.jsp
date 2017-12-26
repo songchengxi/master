@@ -18,7 +18,7 @@
             <t:dgCol title="转正时间" field="formalDate" formatter="yyyy-MM-dd" width="120"></t:dgCol>
             <t:dgCol title="操作" field="opt" width="100"></t:dgCol>
             <t:dgDelOpt title="删除" url="hrUserController.do?doDel&id={id}" urlclass="ace_button" urlStyle="background-color:#ec4758;" urlfont="fa-trash-o"/>
-            <t:dgFunOpt funname="updateFormal(id)" title="转正" exp="jobStatus#eq#3" urlclass="ace_button" urlStyle="background-color:#18a689;" urlfont="fa-cog"></t:dgFunOpt>
+            <t:dgFunOpt funname="updateFormal(name,id)" title="转正" exp="jobStatus#eq#3" urlclass="ace_button" urlStyle="background-color:#18a689;" urlfont="fa-cog"></t:dgFunOpt>
             <t:dgToolBar title="新增员工" icon="icon-add" url="hrUserController.do?addOrUpdate" funname="add"></t:dgToolBar>
             <t:dgToolBar title="编辑" icon="icon-edit" url="hrUserController.do?addOrUpdate" funname="update"></t:dgToolBar>
             <t:dgToolBar title="查看" icon="icon-search" url="hrUserController.do?addOrUpdate" funname="detail"></t:dgToolBar>
@@ -77,13 +77,13 @@
     }
 
     //转正
-    function updateFormal(id) {
+    function updateFormal(name, id) {
         var url = "url:hrUserController.do?goUpdateFormal&id=" + id;
         $.dialog({
             content: url,
             zIndex: getzIndex(),
             lock: true,
-            title: '转正',
+            title: '[ ' + name + ' ] 转正',
             opacity: 0.3,
             width: 500,
             height: 300,

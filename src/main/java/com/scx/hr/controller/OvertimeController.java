@@ -1,6 +1,6 @@
 package com.scx.hr.controller;
 
-import com.scx.hr.entity.HRLeave;
+import com.scx.hr.entity.HROvertime;
 import org.jeecgframework.core.common.exception.BusinessException;
 import org.jeecgframework.core.common.hibernate.qbc.CriteriaQuery;
 import org.jeecgframework.core.common.model.json.AjaxJson;
@@ -22,25 +22,28 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.ParseException;
 
+/**
+ * 加班信息
+ */
 @Controller
-@RequestMapping("/hrLeaveController")
-public class HRLeaveController {
+@RequestMapping("/hrOvertimeController")
+public class OvertimeController {
 
-    private static final Logger log = LoggerFactory.getLogger(HRLeaveController.class);
+    private static final Logger log = LoggerFactory.getLogger(OvertimeController.class);
 
     @Autowired
     private SystemService systemService;
 
     @RequestMapping(params = "list")
     public ModelAndView list() {
-        return new ModelAndView("hr/leave/leaveList");
+        return new ModelAndView("hr/overtime/overtimeList");
     }
 
-    @RequestMapping(params = "datagrid")
-    public void datagrid(HRLeave leave, HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) throws ParseException {
-        CriteriaQuery cq = new CriteriaQuery(HRLeave.class, dataGrid);
+    @RequestMapping(params = "listData")
+    public void listData(HROvertime overtime, HttpServletRequest request, HttpServletResponse response, DataGrid dataGrid) throws ParseException {
+        CriteriaQuery cq = new CriteriaQuery(HROvertime.class, dataGrid);
         //查询条件组装器
-        org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, leave);
+        org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, overtime);
         String startTimeBegin = request.getParameter("startTime_begin");
         String startTimeEnd = request.getParameter("startTime_end");
         String endTimeBegin = request.getParameter("endTime_begin");
@@ -59,6 +62,7 @@ public class HRLeaveController {
         }
         TSUser sessionUser = ResourceUtil.getSessionUser();
         cq.eq("companyId", sessionUser.getCompanyid());
+        cq.eq("deleteFlag", Globals.Delete_Normal);
         cq.add();
         this.systemService.getDataGridReturn(cq, true);
         TagUtil.datagrid(response, dataGrid);
@@ -69,18 +73,19 @@ public class HRLeaveController {
      */
     @RequestMapping(params = "doDel")
     @ResponseBody
-    public AjaxJson doDel(HRLeave leave, HttpServletRequest request) {
+    public AjaxJson doDel(HROvertime overtime, HttpServletRequest request) {
         String message;
         AjaxJson j = new AjaxJson();
-        leave = systemService.getEntity(HRLeave.class, leave.getId());
-        message = "请假信息删除成功";
+        overtime = systemService.getEntity(HROvertime.class, overtime.getId());
+        message = "加班信息删除成功";
         try {
-            systemService.delete(leave);
+            overtime.setDeleteFlag(Globals.Delete_Forbidden);
+            systemService.updateEntitie(overtime);
             systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
-            log.info("[" + IpUtil.getIpAddr(request) + "][删除请假信息]" + message);
+            log.info("[" + IpUtil.getIpAddr(request) + "][删除加班信息]" + message);
         } catch (Exception e) {
             e.printStackTrace();
-            message = "请假信息删除失败";
+            message = "加班信息删除失败";
             throw new BusinessException(e.getMessage());
         }
         j.setMsg(message);
@@ -95,17 +100,18 @@ public class HRLeaveController {
     public AjaxJson doBatchDel(String ids, HttpServletRequest request) {
         String message;
         AjaxJson j = new AjaxJson();
-        message = "请假信息删除成功";
+        message = "加班信息删除成功";
         try {
             for (String id : ids.split(",")) {
-                HRLeave leave = systemService.getEntity(HRLeave.class, id);
-                systemService.delete(leave);
+                HROvertime overtime = systemService.getEntity(HROvertime.class, id);
+                overtime.setDeleteFlag(Globals.Delete_Forbidden);
+                systemService.updateEntitie(overtime);
                 systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
-                log.info("[" + IpUtil.getIpAddr(request) + "][删除请假信息]" + message);
+                log.info("[" + IpUtil.getIpAddr(request) + "][删除加班信息]" + message);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            message = "请假信息删除失败";
+            message = "加班信息删除失败";
             throw new BusinessException(e.getMessage());
         }
         j.setMsg(message);
@@ -116,12 +122,12 @@ public class HRLeaveController {
      * 新增、编辑
      */
     @RequestMapping(params = "addOrUpdate")
-    public ModelAndView addOrUpdate(HRLeave leave, HttpServletRequest request) {
-        if (StringUtil.isNotEmpty(leave.getId())) {
-            leave = systemService.getEntity(HRLeave.class, leave.getId());
-            request.setAttribute("leave", leave);
+    public ModelAndView addOrUpdate(HROvertime overtime, HttpServletRequest request) {
+        if (StringUtil.isNotEmpty(overtime.getId())) {
+            overtime = systemService.getEntity(HROvertime.class, overtime.getId());
+            request.setAttribute("overtime", overtime);
         }
-        return new ModelAndView("hr/leave/leave");
+        return new ModelAndView("hr/overtime/overtime");
     }
 
     /**
@@ -129,18 +135,19 @@ public class HRLeaveController {
      */
     @RequestMapping(params = "save")
     @ResponseBody
-    public AjaxJson save(HRLeave leave) {
+    public AjaxJson save(HROvertime overtime) {
         String message;
         AjaxJson j = new AjaxJson();
-        if (StringUtil.isNotEmpty(leave.getId())) {
-            systemService.saveOrUpdate(leave);
-            message = "请假信息更新成功";
+        if (StringUtil.isNotEmpty(overtime.getId())) {
+            systemService.saveOrUpdate(overtime);
+            message = "加班信息更新成功";
             systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
         } else {
             TSUser sessionUser = ResourceUtil.getSessionUser();
-            leave.setCompanyId(sessionUser.getCompanyid());
-            systemService.save(leave);
-            message = "请假信息添加成功";
+            overtime.setCompanyId(sessionUser.getCompanyid());
+            overtime.setDeleteFlag(Globals.Delete_Normal);
+            systemService.save(overtime);
+            message = "加班信息添加成功";
             systemService.addLog(message, Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);
         }
         j.setMsg(message);

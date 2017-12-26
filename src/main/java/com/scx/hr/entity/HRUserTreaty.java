@@ -16,7 +16,7 @@ public class HRUserTreaty implements Serializable {
     private String id;
     private String companyId;
     private String userId;
-    // TODO: 2017/12/21
+    // TODO: 2017/12/21 hr_user表，姓名有变动无法更改
     private String userName;
     private String treatyType;//合同类型    1劳动合同;2劳务合同;3非全日制合同
     private String signType;//签订类型  1初次签订;2续签;3无固定期限签订
@@ -26,6 +26,7 @@ public class HRUserTreaty implements Serializable {
     private Date treatyEnd;//结束日期
     private Date signDate;//签订日期
     private String remark;//备注
+    private Short deleteFlag;//删除标记   0：存在；1：已删除
 
     @Id
     @GeneratedValue(generator = "paymentableGenerator")
@@ -138,6 +139,15 @@ public class HRUserTreaty implements Serializable {
         this.remark = remark;
     }
 
+    @Column(name = "delete_flag")
+    public Short getDeleteFlag() {
+        return deleteFlag;
+    }
+
+    public void setDeleteFlag(Short deleteFlag) {
+        this.deleteFlag = deleteFlag;
+    }
+
     @Override
     public String toString() {
         return "HRUserTreaty{" +
@@ -151,6 +161,7 @@ public class HRUserTreaty implements Serializable {
                 ", treatyEnd=" + treatyEnd +
                 ", signDate=" + signDate +
                 ", remark='" + remark + '\'' +
+                ", deleteFlag='" + deleteFlag + '\'' +
                 '}';
     }
 }

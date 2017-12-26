@@ -1,9 +1,5 @@
 package com.scx.hr.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONPObject;
 import com.scx.hr.entity.HRSalary;
 import com.scx.hr.entity.HRUser;
 import com.scx.hr.entity.HRUserOrg;
@@ -11,7 +7,6 @@ import com.scx.hr.entity.HRUserSalary;
 import org.jeecgframework.core.common.hibernate.qbc.CriteriaQuery;
 import org.jeecgframework.core.common.model.json.AjaxJson;
 import org.jeecgframework.core.common.model.json.DataGrid;
-import org.jeecgframework.core.common.model.json.TreeGrid;
 import org.jeecgframework.core.constant.Globals;
 import org.jeecgframework.core.util.*;
 import org.jeecgframework.tag.core.easyui.TagUtil;
@@ -325,6 +320,7 @@ public class SalaryController {
             userSalary.setUserId(id);
             userSalary.setSalaryId(next.getKey());
             userSalary.setValue(Double.valueOf(next.getValue()[0]));
+            userSalary.setDeleteFlag(Globals.Delete_Normal);
             salaryList.add(userSalary);
         }
         if (!salaryList.isEmpty()) {

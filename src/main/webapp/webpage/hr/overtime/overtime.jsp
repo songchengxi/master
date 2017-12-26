@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>合同信息</title>
+    <title>请假信息</title>
     <t:base type="jquery,easyui,tools"></t:base>
     <script type="text/javascript" src="plug-in/laydate/laydate.js"></script>
     <script>
@@ -46,73 +46,71 @@
         $(document).ready(function () {
             //时间选择器
             var start = laydate.render({
-                elem: '#treatyStart',
+                elem: '#startTime',
+                type: 'datetime',
                 calendar: true,
                 trigger: 'click',
-                done: function (value, date) {
-                    $("#treatyStart").val(value);
-                    $('#treatyStart').blur();
+                done: function (value, date, endDate) {
+                    $("#startTime").val(value);
+                    $('#startTime').blur();
                     calculation();
                     end.config.min = {
                         year: date.year,
                         month: date.month - 1,
-                        date: date.date
+                        date: date.date,
+                        hours: date.hours,
+                        minutes: date.minutes,
+                        seconds: date.seconds
                     }
                 }
             });
             var end = laydate.render({
-                elem: '#treatyEnd',
+                elem: '#endTime',
+                type: 'datetime',
                 calendar: true,
                 trigger: 'click',
-                done: function (value, date) {
-                    $("#treatyEnd").val(value);
-                    $('#treatyEnd').blur();
+                done: function (value, date, endDate) {
+                    $("#endTime").val(value);
+                    $('#endTime').blur();
                     calculation();
                     start.config.max = {
                         year: date.year,
                         month: date.month - 1,
-                        date: date.date
+                        date: date.date,
+                        hours: date.hours,
+                        minutes: date.minutes,
+                        seconds: date.seconds
                     }
-                }
-            });
-            laydate.render({
-                elem: '#signDate',
-                calendar: true,
-                trigger: 'click',
-                done: function (value) {
-                    $("#signDate").val(value);
-                    $('#signDate').blur();
                 }
             });
         });
 
-        //计算期限
+        //计算时长
         function calculation() {
-            var start = $("#treatyStart").val();//开始时间
-            var end = $("#treatyEnd").val();//结束时间
+            var start = $("#startTime").val();//开始时间
+            var end = $("#endTime").val();//结束时间
             if (start != "" && end != "") {
                 var date3 = new Date(end).getTime() - new Date(start).getTime();//时间差的毫秒数
-                //计算出期限
-                var year = Math.ceil(date3 / (365 * 24 * 3600 * 1000));
-                $("#term").val(year);
-                $("#term").blur();
+                //计算时长
+                var hours = Math.floor(date3 / (3600 * 1000));
+                $("#duration").val(hours);
             }
         }
     </script>
 </head>
 <body>
-<t:formvalid formid="formobj" dialog="true" usePlugin="password" layout="table" action="hrTreatyController.do?save">
-    <input type="hidden" name="id" value='${treaty.id}'>
-    <input type="hidden" name="companyId" value='${treaty.companyId}'>
-    <input type="hidden" name="deleteFlag" value='${treaty.deleteFlag}'>
+<t:formvalid formid="formobj" dialog="true" usePlugin="password" layout="table" action="hrOvertimeController.do?save">
+    <input type="hidden" name="id" value='${overtime.id}'>
+    <input type="hidden" name="companyId" value='${overtime.companyId}'>
+    <input type="hidden" name="deleteFlag" value='${overtime.deleteFlag}'>
     <table style="width: 600px;" cellpadding="0" cellspacing="1" class="formtable">
         <tr>
             <td align="right" width="25%" nowrap>
                 <label class="Validform_label"> 员工: </label>
             </td>
             <td class="value" width="85%">
-                <input id="userId" name="userId" type="hidden" value="${treaty.userId}"/>
-                <input id="userName" name="userName" class="inputxt" value="${treaty.userName}" readonly="readonly" datatype="*" />
+                <input id="userId" name="userId" type="hidden" value="${overtime.userId}"/>
+                <input id="userName" name="userName" class="inputxt" value="${overtime.userName}" readonly="readonly" datatype="*"/>
                 <a href="#" class="easyui-linkbutton" plain="true" icon="icon-search"
                    onclick="openUserSelect()">选择</a>
                 <a href="#" class="easyui-linkbutton" plain="true" icon="icon-redo" id="roleRedo"
@@ -121,68 +119,49 @@
             </td>
         </tr>
         <tr>
-            <td align="right" width="25%" nowrap>
-                <label class="Validform_label"> 合同编号: </label>
-            </td>
-            <td class="value" width="85%">
-                <input id="treatyNo" name="treatyNo" type="text" class="form-control"
-                       value='${treaty.treatyNo}' datatype="*"/>
-                <span class="Validform_checktip"></span>
-            </td>
-        </tr>
-        <tr>
-            <td align="right" width="10%" nowrap><label class="Validform_label"> 合同类型: </label></td>
+            <td align="right" width="10%" nowrap><label class="Validform_label"> 加班类型: </label></td>
             <td class="value" width="10%">
-                <t:dictSelect field="treatyType" type="select" extendJson="{class:'form-control'}" typeGroupCode="treatyType"
-                              defaultVal="${treaty.treatyType}" hasLabel="false" title="合同类型" datatype="*"></t:dictSelect>
-                <span class="Validform_checktip"></span>
-            </td>
-        </tr>
-        <tr>
-            <td align="right" width="10%" nowrap><label class="Validform_label"> 签订类型: </label></td>
-            <td class="value" width="10%">
-                <t:dictSelect field="signType" type="select" extendJson="{class:'form-control'}" typeGroupCode="signType"
-                              defaultVal="${treaty.signType}" hasLabel="false" title="签订类型" datatype="*"></t:dictSelect>
+                <t:dictSelect field="type" type="select" extendJson="{class:'form-control'}" typeGroupCode="overtimeType"
+                              defaultVal="${overtime.type}" hasLabel="false" title="请假类型" datatype="*"></t:dictSelect>
                 <span class="Validform_checktip"></span>
             </td>
         </tr>
         <tr>
             <td align="right" width="25%" nowrap>
-                <label class="Validform_label"> 开始日期: </label>
+                <label class="Validform_label"> 开始时间: </label>
             </td>
             <td class="value" width="85%">
-                <input id="treatyStart" name="treatyStart" type="text" class="Wdate"
-                       value='<fmt:formatDate value="${treaty.treatyStart}" pattern="yyyy-MM-dd"/>' datatype="*"/>
+                <input id="startTime" name="startTime" type="text"
+                       value='<fmt:formatDate value="${overtime.startTime}" pattern="yyyy-MM-dd HH:mm:ss"/>' datatype="*"/>
                 <span class="Validform_checktip"></span>
             </td>
         </tr>
         <tr>
             <td align="right" width="25%" nowrap>
-                <label class="Validform_label"> 结束日期: </label>
+                <label class="Validform_label"> 结束时间: </label>
             </td>
             <td class="value" width="85%">
-                <input id="treatyEnd" name="treatyEnd" type="text" class="Wdate"
-                       value='<fmt:formatDate value="${treaty.treatyEnd}" pattern="yyyy-MM-dd"/>' datatype="*"/>
+                <input id="endTime" name="endTime" type="text"
+                       value='<fmt:formatDate value="${overtime.endTime}" pattern="yyyy-MM-dd HH:mm:ss"/>' datatype="*"/>
                 <span class="Validform_checktip"></span>
             </td>
         </tr>
         <tr>
             <td align="right" width="25%" nowrap>
-                <label class="Validform_label"> 期限: </label>
+                <label class="Validform_label"> 时长: </label>
             </td>
             <td class="value" width="85%">
-                <input id="term" name="term" type="text" class="form-control"
-                       value='${treaty.term}' datatype="/^(-?\d+)(\.\d+)?$/"/>
+                <input id="duration" name="duration" type="text" class="form-control"
+                       value='${overtime.duration}' datatype="/^(-?\d+)(\.\d+)?$/"/>
                 <span class="Validform_checktip"></span>
             </td>
         </tr>
         <tr>
             <td align="right" width="25%" nowrap>
-                <label class="Validform_label"> 签订日期: </label>
+                <label class="Validform_label"> 原因: </label>
             </td>
             <td class="value" width="85%">
-                <input id="signDate" name="signDate" type="text" class="Wdate"
-                       value='<fmt:formatDate value="${treaty.signDate}" pattern="yyyy-MM-dd"/>' datatype="*"/>
+                <textarea id="reason" name="reason" rows="5" cols="50" class="form-control" ignore="ignore">${overtime.reason}</textarea>
                 <span class="Validform_checktip"></span>
             </td>
         </tr>

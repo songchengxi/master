@@ -108,7 +108,13 @@ public class HRUserController extends BaseController {
             //删除部门关系
             systemService.executeSql("delete from hr_user_org where user_id=?", user.getId());
             //删除社保信息
-            systemService.executeSql("delete from hr_user_social where user_id=?", user.getId());
+            systemService.executeSql("update hr_user_social set delete_flag = 1 where user_id=?", user.getId());
+            //删除薪资信息
+            systemService.executeSql("update hr_user_salary set delete_flag = 1 where user_id=?", user.getId());
+            //删除合同信息
+            systemService.executeSql("update hr_user_treaty set delete_flag = 1 where user_id=?", user.getId());
+            //删除加班信息
+            systemService.executeSql("update hr_overtime set delete_flag=1 where user_id=?", user.getId());
 
             user.setDeleteFlag(Globals.Delete_Forbidden);
             systemService.updateEntitie(user);
@@ -138,7 +144,13 @@ public class HRUserController extends BaseController {
                 //删除部门关系
                 systemService.executeSql("delete from hr_user_org where user_id=?", user.getId());
                 //删除社保信息
-                systemService.executeSql("delete from hr_user_social where user_id=?", user.getId());
+                systemService.executeSql("update hr_user_social set delete_flag = 1 where user_id=?", user.getId());
+                //删除薪资信息
+                systemService.executeSql("update hr_user_salary set delete_flag = 1 where user_id=?", user.getId());
+                //删除合同信息
+                systemService.executeSql("update hr_user_treaty set delete_flag = 1 where user_id=?", user.getId());
+                //删除加班信息
+                systemService.executeSql("update hr_overtime set delete_flag = 1 where user_id=?", user.getId());
 
                 user.setDeleteFlag(Globals.Delete_Forbidden);
                 systemService.updateEntitie(user);
@@ -206,6 +218,7 @@ public class HRUserController extends BaseController {
             user.setCompanyId(sessionUser.getCompanyid());
             user.setJobStatus("3");//默认试用期员工
             Calendar c = Calendar.getInstance();
+            c.setTime(user.getJoinTime());
             c.add(Calendar.MONTH, Integer.parseInt(user.getPeriod()));
             user.setFormalDate(c.getTime());//转正时间
             systemService.save(user);
@@ -250,7 +263,7 @@ public class HRUserController extends BaseController {
      */
     @RequestMapping(params = "goUserSelect")
     public ModelAndView goUserSelect(HttpServletRequest request) {
-        ModelAndView mv = new ModelAndView("hr/leave/userSelect");
+        ModelAndView mv = new ModelAndView("hr/user/userSelect");
         String id = oConvertUtils.getString(request.getParameter("id"));
         mv.addObject("id", id);
         return mv;
@@ -297,7 +310,6 @@ public class HRUserController extends BaseController {
      * 转正页面
      */
     @RequestMapping(params = "goUpdateFormal")
-    @ResponseBody
     public ModelAndView goUpdateFormal(HttpServletRequest request, String id) {
         HRUser user = systemService.get(HRUser.class, id);
         request.setAttribute("user", user);

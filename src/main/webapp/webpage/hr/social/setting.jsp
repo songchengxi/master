@@ -35,6 +35,7 @@
                onclick="saveData()">保存</a>
             <a href="#" class="easyui-linkbutton" plain="true" icon="icon-undo"
                onclick="reject()">取消编辑</a>
+            <%--<a href="#" class="easyui-linkbutton" plain="true" icon="icon-undo" onclick="calculator()">计算器</a>--%>
         </span>
             <div style="clear:both"></div>
         </div>
@@ -55,6 +56,7 @@
     }
 
     function querySocialByRowData(rowIndex, rowData) {
+        reject();//取消编辑
         loadRowList(rowData.id);
     }
 
@@ -87,7 +89,7 @@
         $('#socialRowList').datagrid({
             idField: 'id',
             title: '编辑数据',
-            url: 'hrSocialController.do?datagrid&field=id,name,base,companyProportion,userProportion,companyVal,userVal,&parentId=' + parentId,
+            url: 'hrSocialController.do?datagrid&field=id,name,base,companyProportion,userProportion,companyVal,userVal,status,isSys,&parentId=' + parentId,
             fit: true,
             loadMsg: '数据加载中...',
             pageSize: 10,
@@ -101,13 +103,54 @@
             showFooter: true,
             frozenColumns: [[{field: 'ck', checkbox: 'true'}]],
             columns: [[{field: 'id', title: 'id', width: 140, hidden: true, sortable: true},
-                {field: 'name', title: '名称', width: 80, editor: 'text', sortable: true},
-                {field: 'base', title: '缴纳基数（元）', width: 80, editor: 'numberbox', sortable: true},
-                {field: 'companyProportion', title: '公司缴纳比例（%）', width: 100, editor: 'numberbox', sortable: true},
-                {field: 'userProportion', title: '个人缴纳比例（%）', width: 100, editor: 'numberbox', sortable: true},
-                {field: 'companyVal', title: '公司缴纳数额（元）', width: 100, editor: 'numberbox', sortable: true},
-                {field: 'userVal', title: '个人缴纳数额（元）', width: 100, editor: 'numberbox', sortable: true},
-                {field: 'opt', title: '操作', width: 100, formatter: function (value, rec, index) {if (!rec.id) {return '';} var href = '';return href;}}]],
+                {field: 'name', title: '项目', width: 80, rowspan: 2, editor: 'text', sortable: true},
+                {field: 'base', title: '缴费基数（元）', width: 80, rowspan: 2, editor: {type: 'numberbox', options: {precision: 2}}, sortable: true},
+                {title: '单位缴纳', colspan: "2"}, {title: '个人缴纳', colspan: "2"},
+                {field: 'isSys', title: '是否系统', width: 60, rowspan: 2, hidden: true, sortable: true},
+                {field: 'status', title: '是否启用', width: 60, rowspan: 2, sortable: true,
+                    formatter: function (value, rec, index) {
+                        if (value == undefined) return '';
+                        if (value == 'Y') {
+                            return '已启用';
+                        }
+                        if (value == 'N') {
+                            return '已停用';
+                        } else {
+                            return value;
+                        }
+                    },
+                    styler: function (value, rec, index) {
+                        if (value == 'N') {
+                            return 'background:red;color:#FFFFFF;'
+                        }
+                    }
+                },
+                {field: 'opt', title: '操作', rowspan: 2,
+                    formatter: function (value, rec, index) {
+                        if (!rec.id) {
+                            return '';
+                        }
+                        var href = '';
+                        if ($.inArray(rec.status, ['N']) >= 0) {
+                            href += "<a href='#' class='ace_button' onclick=openAndCloseSocial('" + rec.id + "','" + rec.status + "') style='background-color:#18a689;' > <i class='fa fa-cog'></i>";
+                            href += "启用</a>&nbsp;";
+                        }
+                        if ($.inArray(rec.status, ['Y']) >= 0) {
+                            href += "<a href='#' class='ace_button' onclick=openAndCloseSocial('" + rec.id + "','" + rec.status + "') style='background-color:#18a689;' > <i class='fa fa-cog'></i>";
+                            href += "停用</a>&nbsp;";
+                        }
+                        if ($.inArray(rec.isSys, ['Y']) < 0) {
+                            href += "<a href='#' class='ace_button' onclick=delSocial('" + rec.id + "','" + rec.status + "') style='background-color:#ec4758;' > <i class='fa fa-trash-o'></i>";
+                            href += "删除</a>&nbsp;";
+                        }
+                        return href;
+                    }
+                }],
+                [{field: 'companyProportion', title: '比例（%）', width: 100, editor: {type:'numberbox',options:{precision:2}}, sortable: true},
+                {field: 'companyVal', title: '费用（元/月）', width: 100, editor: {type:'numberbox',options:{precision:2}}, sortable: true},
+                {field: 'userProportion', title: '比例（%）', width: 100, editor: {type:'numberbox',options:{precision:2}}, sortable: true},
+                {field: 'userVal', title: '费用（元/月）', width: 100, editor: {type:'numberbox',options:{precision:2}}, sortable: true}
+            ]],
             onLoadSuccess: function (data) {
                 $("#socialRowList").datagrid("clearSelections");
                 $(this).datagrid("fixRownumber");
@@ -156,6 +199,32 @@
         for (var i = 0; i < rows.length; i++) {
             var index = $('#socialRowList').datagrid('getRowIndex', rows[i]);
             $('#socialRowList').datagrid('beginEdit', index);
+
+            // 绑定事件, index为当前编辑行
+            let editors = $('#socialRowList').datagrid('getEditors', index);
+            let baseEditor = editors[1];//缴纳基数
+            let comEditor = editors[2];//公司缴纳比例
+            let comVal = editors[3];//公司缴纳
+            let userEditor = editors[4];//个人缴纳比例
+            let userVal = editors[5];//个人缴纳
+            baseEditor.target.bind('change', function () {//缴纳基数
+                if ("" != comEditor.target.val()) {
+                    $(comVal.target).numberbox('setValue', $(this).val() * comEditor.target.val() * 0.01);
+                }
+                if ("" != userEditor.target.val()) {
+                    $(userVal.target).numberbox('setValue', $(this).val() * userEditor.target.val() * 0.01);
+                }
+            });
+            comEditor.target.bind('change', function () {//公司比例计算公司数额
+                if ("" != baseEditor.target.val()) {
+                    $(comVal.target).numberbox('setValue', $(this).val() * baseEditor.target.val() * 0.01);
+                }
+            });
+            userEditor.target.bind('change', function () {//个人比例计算个人数额
+                if ("" != baseEditor.target.val()) {
+                    $(userVal.target).numberbox('setValue', $(this).val() * baseEditor.target.val() * 0.01);
+                }
+            });
         }
     }
 
@@ -209,6 +278,43 @@
     function reject() {
         $('#socialRowList').datagrid('clearChecked');
         $('#socialRowList').datagrid('rejectChanges');
+    }
+
+    //删除
+    function delSocial(id, status) {
+        var url = "hrSocialController.do?del&id=" + id;
+        if ("Y" == status) {
+            createdialog('删除确认 ', '该社保已启用，删除将自动去掉该社保项目。确定删除该记录吗 ?', url, "socialRowList");
+        } else {
+            createdialog('删除确认 ', '确定删除该记录吗 ?', url, "socialRowList");
+        }
+    }
+
+    //开启或关闭
+    function openAndCloseSocial(id, status) {
+        var url = "hrSocialController.do?openAndClose&id=" + id;
+        if ("Y" == status) {
+            createdialog('停用确认 ', '确定停用吗 ?', url, "socialRowList");
+        } else {
+            createdialog('启用确认 ', '确定开启吗 ?', url, "socialRowList");
+        }
+    }
+
+    //计算器
+    function calculator(){
+        var url = "url:hrSocialController.do?openCalculator";
+        $.dialog({
+            content: url,
+            zIndex: getzIndex(),
+            lock: true,
+            title: '计算器',
+            opacity: 0.3,
+            width: 400,
+            height: 500,
+            cache: false,
+            cancelVal: '<t:mutiLang langKey="common.close"/>',
+            cancel: true /*为true等价于function(){}*/
+        });
     }
 
     function reloadTable() {

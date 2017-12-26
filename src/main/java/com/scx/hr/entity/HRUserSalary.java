@@ -16,6 +16,7 @@ public class HRUserSalary implements Serializable {
     private String userId;
     private String salaryId;
     private Double value;
+    private Short deleteFlag;//删除标记   0：存在；1：已删除
 
     @Id
     @GeneratedValue(generator = "paymentableGenerator")
@@ -56,6 +57,15 @@ public class HRUserSalary implements Serializable {
         this.value = value;
     }
 
+    @Column(name = "delete_flag")
+    public Short getDeleteFlag() {
+        return deleteFlag;
+    }
+
+    public void setDeleteFlag(Short deleteFlag) {
+        this.deleteFlag = deleteFlag;
+    }
+
     @Override
     public String toString() {
         return "HRUserSalary{" +
@@ -63,6 +73,7 @@ public class HRUserSalary implements Serializable {
                 ", userId='" + userId + '\'' +
                 ", salaryId='" + salaryId + '\'' +
                 ", value=" + value +
+                ", deleteFlag=" + deleteFlag +
                 '}';
     }
 }
