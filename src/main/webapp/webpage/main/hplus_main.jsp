@@ -1,10 +1,3 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: wangkun
-  Date: 2016/4/23
-  Time: 10:33
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@include file="/context/mytags.jsp" %>
 <html>
@@ -16,16 +9,16 @@
     <meta name="keywords" content="Master管理系统">
     <meta name="description" content="Master管理系统">
     <link rel="shortcut icon" href="images/favicon.ico">
-    <link href="plug-in-ui/hplus/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
-    <link href="plug-in-ui/hplus/css/font-awesome.min.css?v=4.4.0" rel="stylesheet">
+    <link href="plug-in/hplus/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="plug-in/hplus/css/font-awesome.min.css?v=4.4.0" rel="stylesheet">
     <link rel="stylesheet" href="plug-in/ace/assets/css/font-awesome.min.css"/>
     <!--[if IE 7]>
     <link rel="stylesheet" href="plug-in/ace/assets/css/font-awesome-ie7.min.css"/>
     <![endif]-->
     <!-- Sweet Alert -->
-    <link href="plug-in-ui/hplus/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
-    <link href="plug-in-ui/hplus/css/animate.css" rel="stylesheet">
-    <link href="plug-in-ui/hplus/css/style.css?v=4.1.0" rel="stylesheet">
+    <link href="plug-in/hplus/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+    <link href="plug-in/hplus/css/animate.css" rel="stylesheet">
+    <link href="plug-in/hplus/css/style.css?v=4.1.0" rel="stylesheet">
     <!--右键菜单-->
     <link href="plug-in/hplus/smartMenu.css" rel="stylesheet">
 </head>
@@ -40,17 +33,13 @@
             <ul class="nav" id="side-menu">
                 <li class="nav-header">
                     <div class="dropdown profile-element">
-                        <%--dangzhenghui begin 20170502 for 增加添加头像功能--%>
                         <span>
-                            <%--TODO--%>
-                            <img alt="image" width="180" height="61" src="plug-in/login/images/jeecg-aceplus.png"/>
+                            <img alt="image" class="img-circle" src="plug-in/hplus/img/profile_small.jpg"/>
                         </span>
-                        <%--dangzhenghui end 20170502 for 增加添加头像功能--%>
-                        <%--//update-start--Author: chenj Date:20160726 for: TASK #1207 [改造]h+风格下，去掉logo下面的内容，迁移位置到右上角，主题位置
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                             <span class="clear">
                             <span class="block m-t-xs"><strong class="font-bold">${userName }</strong></span>
-                            <span class="text-muted text-xs block">${roleName }<b class="caret"></b></span>
+                            <span class="text-muted text-xs block">${companyName }<b class="caret"></b></span>
                             </span>
                     </a>
                     <ul class="dropdown-menu animated fadeInRight m-t-xs">
@@ -60,17 +49,14 @@
                             </a>
                         </li>
                         <li><a href="javascript:openwindow('<t:mutiLang langKey="common.profile"/>','userController.do?userinfo')"><t:mutiLang langKey="common.profile"/></a></li>
-                        <li><a href="javascript:openwindow('<t:mutiLang langKey="common.ssms.getSysInfos"/>','tSSmsController.do?getSysInfos')"><t:mutiLang langKey="common.ssms.getSysInfos"/></a></li>
-                        <li><a href="javascript:add('<t:mutiLang langKey="common.change.style"/>','userController.do?changestyle','',550,250)"><t:mutiLang langKey="common.my.style"/></a></li>
+                        <%--<li><a href="javascript:openwindow('<t:mutiLang langKey="common.ssms.getSysInfos"/>','tSSmsController.do?getSysInfos')"><t:mutiLang langKey="common.ssms.getSysInfos"/></a></li>--%>
+                        <%--<li><a href="javascript:add('<t:mutiLang langKey="common.change.style"/>','userController.do?changestyle','',550,250)"><t:mutiLang langKey="common.my.style"/></a></li>--%>
                         <li><a href="javascript:clearLocalstorage()"><t:mutiLang langKey="common.clear.localstorage"/></a></li>
-                        <li><a href="http://yun.jeecg.org" target="_blank">云应用中心</li>
                         <li class="divider"></li>
-                        <li><a href="javascript:logout()">注销</a></li>
+                        <li><a href="javascript:logout()">安全退出</a></li>
                     </ul>
-                     //update-end--Author: chenj Date:20160726 for: TASK #1207 [改造]h+风格下，去掉logo下面的内容，迁移位置到右上角，主题位置 --%>
                     </div>
-                    <div class="logo-element">Master
-                    </div>
+                    <div class="logo-element">Master</div>
                 </li>
                 <t:menu style="hplus" menuFun="${menuMap}"></t:menu>
             </ul>
@@ -84,7 +70,7 @@
                 <div class="navbar-header" style="height: 60px;"><a
                         class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i>
                 </a>
-                    <form role="search" class="navbar-form-custom" method="post" action="search_results.html">
+                    <form role="search" class="navbar-form-custom" method="post">
                         <div class="form-group">
                             <input type="text" placeholder="欢迎使用Master管理系统 …" class="form-control" name="top-search"
                                    id="top-search">
@@ -158,12 +144,12 @@
                             <li>
                                 <a href="javascript:openwindow('<t:mutiLang langKey="common.profile"/>','userController.do?userinfo')"><t:mutiLang
                                         langKey="common.profile"/></a></li>
-                            <li>
-                                <a href="javascript:openwindow('<t:mutiLang langKey="common.ssms.getSysInfos"/>','tSSmsController.do?getSysInfos')"><t:mutiLang
-                                        langKey="common.ssms.getSysInfos"/></a></li>
-                            <li>
-                                <a href="javascript:add('<t:mutiLang langKey="common.change.style"/>','userController.do?changestyle','',550,250)"><t:mutiLang
-                                        langKey="common.my.style"/></a></li>
+                            <%--<li>--%>
+                                <%--<a href="javascript:openwindow('<t:mutiLang langKey="common.ssms.getSysInfos"/>','tSSmsController.do?getSysInfos')"><t:mutiLang--%>
+                                        <%--langKey="common.ssms.getSysInfos"/></a></li>--%>
+                            <%--<li>--%>
+                                <%--<a href="javascript:add('<t:mutiLang langKey="common.change.style"/>','userController.do?changestyle','',550,250)"><t:mutiLang--%>
+                                        <%--langKey="common.my.style"/></a></li>--%>
                             <li><a href="javascript:clearLocalstorage()"><t:mutiLang
                                     langKey="common.clear.localstorage"/></a></li>
                             <%--<li><a href="javascript:toJeecgYun()">云应用中心</a></li>--%>
@@ -214,7 +200,7 @@
                         </li>
                     </ul>
                 </div>
-
+            </nav>
                 <!--
                 <a href="javascript:logout()" class="roll-nav roll-right J_tabExit"><i class="fa fa fa-sign-out"></i> 退出</a>
                  -->
@@ -488,22 +474,22 @@
 </div>
 
 <!-- 全局js -->
-<script src="plug-in-ui/hplus/js/jquery.min.js?v=2.1.4"></script>
-<script src="plug-in-ui/hplus/js/bootstrap.min.js?v=3.3.6"></script>
-<script src="plug-in-ui/hplus/js/plugins/metisMenu/jquery.metisMenu.js"></script>
-<script src="plug-in-ui/hplus/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
-<script src="plug-in-ui/hplus/js/plugins/layer/layer.min.js"></script>
+<script src="plug-in/hplus/js/jquery.min.js?v=2.1.4"></script>
+<script src="plug-in/hplus/js/bootstrap.min.js?v=3.3.6"></script>
+<script src="plug-in/hplus/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+<script src="plug-in/hplus/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+<script src="plug-in/hplus/js/plugins/layer/layer.min.js"></script>
 
 <!-- 自定义js -->
-<script src="plug-in-ui/hplus/js/hplus.js?v=4.1.0"></script>
+<script src="plug-in/hplus/js/hplus.js?v=4.1.0"></script>
 <!--右键菜单-->
 <script type="text/javascript" src="plug-in/hplus/jquery-smartMenu.js"></script>
 <script type="text/javascript" src="plug-in/hplus/contabs.js"></script>
 <t:base type="tools"></t:base>
 <!-- 第三方插件 -->
-<script src="plug-in-ui/hplus/js/plugins/pace/pace.min.js"></script>
+<script src="plug-in/hplus/js/plugins/pace/pace.min.js"></script>
 <!-- Sweet alert -->
-<script src="plug-in-ui/hplus/js/plugins/sweetalert/sweetalert.min.js"></script>
+<script src="plug-in/hplus/js/plugins/sweetalert/sweetalert.min.js"></script>
 <script src="plug-in/jquery-plugs/storage/jquery.storageapi.min.js"></script>
 
 <!-- 弹出TAB -->

@@ -112,7 +112,7 @@
             </td>
             <td class="value" width="85%">
                 <input id="userId" name="userId" type="hidden" value="${treaty.userId}"/>
-                <input id="userName" name="userName" class="inputxt" value="${treaty.userName}" readonly="readonly" datatype="*" />
+                <input id="userName" name="userName" class="inputxt" value="${userName}" readonly="readonly" datatype="*" />
                 <a href="#" class="easyui-linkbutton" plain="true" icon="icon-search"
                    onclick="openUserSelect()">选择</a>
                 <a href="#" class="easyui-linkbutton" plain="true" icon="icon-redo" id="roleRedo"

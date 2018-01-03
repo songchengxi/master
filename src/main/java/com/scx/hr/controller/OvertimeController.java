@@ -1,6 +1,8 @@
 package com.scx.hr.controller;
 
 import com.scx.hr.entity.HROvertime;
+import com.scx.hr.entity.HRUser;
+import org.hibernate.criterion.Property;
 import org.jeecgframework.core.common.exception.BusinessException;
 import org.jeecgframework.core.common.hibernate.qbc.CriteriaQuery;
 import org.jeecgframework.core.common.model.json.AjaxJson;
@@ -60,6 +62,16 @@ public class OvertimeController {
         if (oConvertUtils.isNotEmpty(endTimeEnd)) {
             cq.le("endTime", DateUtils.parseDate(endTimeEnd, "yyyy-MM-dd"));
         }
+
+        String userName = request.getParameter("userName");
+        if (StringUtil.isNotEmpty(userName)) {
+            CriteriaQuery subCq = new CriteriaQuery(HRUser.class);
+            subCq.setProjection(Property.forName("id"));
+            subCq.like("name", "%" + userName + "%");
+            subCq.add();
+            cq.add(Property.forName("userId").in(subCq.getDetachedCriteria()));
+        }
+
         TSUser sessionUser = ResourceUtil.getSessionUser();
         cq.eq("companyId", sessionUser.getCompanyid());
         cq.eq("deleteFlag", Globals.Delete_Normal);
@@ -126,6 +138,8 @@ public class OvertimeController {
         if (StringUtil.isNotEmpty(overtime.getId())) {
             overtime = systemService.getEntity(HROvertime.class, overtime.getId());
             request.setAttribute("overtime", overtime);
+            HRUser hrUser = systemService.get(HRUser.class, overtime.getUserId());
+            request.setAttribute("userName", hrUser.getName());
         }
         return new ModelAndView("hr/overtime/overtime");
     }

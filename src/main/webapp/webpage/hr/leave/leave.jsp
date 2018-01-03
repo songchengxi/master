@@ -104,6 +104,7 @@
 <t:formvalid formid="formobj" dialog="true" usePlugin="password" layout="table" action="hrLeaveController.do?save">
     <input type="hidden" name="id" value='${leave.id}'>
     <input type="hidden" name="companyId" value='${leave.companyId}'>
+    <input type="hidden" name="deleteFlag" value='${leave.deleteFlag}'>
     <table style="width: 600px;" cellpadding="0" cellspacing="1" class="formtable">
         <tr>
             <td align="right" width="25%" nowrap>
@@ -111,7 +112,7 @@
             </td>
             <td class="value" width="85%">
                 <input id="userId" name="userId" type="hidden" value="${leave.userId}"/>
-                <input id="userName" name="userName" class="inputxt" value="${leave.userName}" readonly="readonly" datatype="*" />
+                <input id="userName" name="userName" class="inputxt" value="${userName}" readonly="readonly" datatype="*" />
                 <a href="#" class="easyui-linkbutton" plain="true" icon="icon-search"
                    onclick="openUserSelect()">选择</a>
                 <a href="#" class="easyui-linkbutton" plain="true" icon="icon-redo" id="roleRedo"

@@ -16,8 +16,6 @@ public class HRUserTreaty implements Serializable {
     private String id;
     private String companyId;
     private String userId;
-    // TODO: 2017/12/21 hr_user表，姓名有变动无法更改
-    private String userName;
     private String treatyType;//合同类型    1劳动合同;2劳务合同;3非全日制合同
     private String signType;//签订类型  1初次签订;2续签;3无固定期限签订
     private String treatyNo;//合同编号
@@ -56,15 +54,6 @@ public class HRUserTreaty implements Serializable {
 
     public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    @Column(name = "user_name", nullable = true, length = 10)
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
 
     @Column(name = "treaty_type", nullable = true, length = 2)

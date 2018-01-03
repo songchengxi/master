@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.scx.system.entity.Company;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jeecgframework.core.common.controller.BaseController;
@@ -226,18 +227,21 @@ public class LoginController extends BaseController{
 	@RequestMapping(params = "login")
 	public String login(ModelMap modelMap,HttpServletRequest request,HttpServletResponse response) {
 		TSUser user = ResourceUtil.getSessionUser();
-		String roles = "";
+//		String roles = "";
 		if (user != null) {
-			List<TSRoleUser> rUsers = systemService.findByProperty(TSRoleUser.class, "TSUser.id", user.getId());
-			for (TSRoleUser ru : rUsers) {
-				TSRole role = ru.getTSRole();
-				roles += role.getRoleName() + ",";
-			}
-			if (roles.length() > 0) {
-				roles = roles.substring(0, roles.length() - 1);
-			}
-			
-            modelMap.put("roleName", roles.length()>3?roles.substring(0,3)+"...":roles);
+//			List<TSRoleUser> rUsers = systemService.findByProperty(TSRoleUser.class, "TSUser.id", user.getId());
+//			for (TSRoleUser ru : rUsers) {
+//				TSRole role = ru.getTSRole();
+//				roles += role.getRoleName() + ",";
+//			}
+//			if (roles.length() > 0) {
+//				roles = roles.substring(0, roles.length() - 1);
+//			}
+
+            Company company = systemService.get(Company.class, user.getCompanyid());
+
+            modelMap.put("companyName", company.getName());
+//			modelMap.put("roleName", roles.length()>3?roles.substring(0,3)+"...":roles);
             modelMap.put("userName", user.getUserName().length()>5?user.getUserName().substring(0, 5)+"...":user.getUserName());
             modelMap.put("portrait", user.getPortrait());
 

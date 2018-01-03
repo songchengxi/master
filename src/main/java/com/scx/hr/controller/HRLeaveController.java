@@ -1,6 +1,8 @@
 package com.scx.hr.controller;
 
 import com.scx.hr.entity.HRLeave;
+import com.scx.hr.entity.HRUser;
+import org.hibernate.criterion.Property;
 import org.jeecgframework.core.common.exception.BusinessException;
 import org.jeecgframework.core.common.hibernate.qbc.CriteriaQuery;
 import org.jeecgframework.core.common.model.json.AjaxJson;
@@ -57,8 +59,19 @@ public class HRLeaveController {
         if (oConvertUtils.isNotEmpty(endTimeEnd)) {
             cq.le("endTime", DateUtils.parseDate(endTimeEnd, "yyyy-MM-dd"));
         }
+
+        String userName = request.getParameter("userName");
+        if (StringUtil.isNotEmpty(userName)) {
+            CriteriaQuery subCq = new CriteriaQuery(HRUser.class);
+            subCq.setProjection(Property.forName("id"));
+            subCq.like("name", "%" + userName + "%");
+            subCq.add();
+            cq.add(Property.forName("userId").in(subCq.getDetachedCriteria()));
+        }
+
         TSUser sessionUser = ResourceUtil.getSessionUser();
         cq.eq("companyId", sessionUser.getCompanyid());
+        cq.eq("deleteFlag", Globals.Delete_Normal);
         cq.add();
         this.systemService.getDataGridReturn(cq, true);
         TagUtil.datagrid(response, dataGrid);
@@ -75,7 +88,8 @@ public class HRLeaveController {
         leave = systemService.getEntity(HRLeave.class, leave.getId());
         message = "请假信息删除成功";
         try {
-            systemService.delete(leave);
+            leave.setDeleteFlag(Globals.Delete_Forbidden);
+            systemService.updateEntitie(leave);
             systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
             log.info("[" + IpUtil.getIpAddr(request) + "][删除请假信息]" + message);
         } catch (Exception e) {
@@ -99,7 +113,8 @@ public class HRLeaveController {
         try {
             for (String id : ids.split(",")) {
                 HRLeave leave = systemService.getEntity(HRLeave.class, id);
-                systemService.delete(leave);
+                leave.setDeleteFlag(Globals.Delete_Forbidden);
+                systemService.updateEntitie(leave);
                 systemService.addLog(message, Globals.Log_Type_DEL, Globals.Log_Leavel_INFO);
                 log.info("[" + IpUtil.getIpAddr(request) + "][删除请假信息]" + message);
             }
@@ -120,6 +135,8 @@ public class HRLeaveController {
         if (StringUtil.isNotEmpty(leave.getId())) {
             leave = systemService.getEntity(HRLeave.class, leave.getId());
             request.setAttribute("leave", leave);
+            HRUser hrUser = systemService.get(HRUser.class, leave.getUserId());
+            request.setAttribute("userName", hrUser.getName());
         }
         return new ModelAndView("hr/leave/leave");
     }
@@ -139,6 +156,7 @@ public class HRLeaveController {
         } else {
             TSUser sessionUser = ResourceUtil.getSessionUser();
             leave.setCompanyId(sessionUser.getCompanyid());
+            leave.setDeleteFlag(Globals.Delete_Normal);
             systemService.save(leave);
             message = "请假信息添加成功";
             systemService.addLog(message, Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);

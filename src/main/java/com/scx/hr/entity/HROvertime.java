@@ -6,6 +6,9 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * 加班信息
+ */
 @Entity
 @Table(name = "hr_overtime")
 public class HROvertime implements Serializable {

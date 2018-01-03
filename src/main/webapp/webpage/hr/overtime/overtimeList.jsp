@@ -6,7 +6,8 @@
         <t:datagrid name="hrOvertimeList" checkbox="false" pagination="true" fitColumns="true" title="加班信息"
                     actionUrl="hrOvertimeController.do?listData" idField="id" fit="true" queryMode="group">
             <t:dgCol title="主键" field="id" hidden="true" queryMode="single" width="120"></t:dgCol>
-            <t:dgCol title="姓名" field="userId" dictionary="hr_user,id,name" query="true" queryMode="single" width="120"></t:dgCol>
+            <t:dgCol title="姓名" field="userId" dictionary="hr_user,id,name" query="false" width="120"></t:dgCol>
+            <t:dgCol title="姓名" field="userName" hidden="true" query="true"></t:dgCol>
             <t:dgCol title="加班类型" field="type" query="true" queryMode="single" dictionary="overtimeType" width="150"></t:dgCol>
             <t:dgCol title="开始时间" field="startTime" formatter="yyyy-MM-dd hh:mm:ss" query="true" queryMode="group" width="120"></t:dgCol>
             <t:dgCol title="结束时间" field="endTime" formatter="yyyy-MM-dd hh:mm:ss" query="true" queryMode="group" width="120"></t:dgCol>

@@ -10,6 +10,7 @@ import com.scx.hr.entity.HRUserOrg;
 import com.scx.hr.entity.HRUserSocial;
 import org.hibernate.criterion.Property;
 import org.jeecgframework.core.util.*;
+import org.jeecgframework.tag.vo.datatable.SortDirection;
 import org.jeecgframework.web.system.pojo.base.TSDepart;
 import org.jeecgframework.web.system.pojo.base.TSUser;
 import org.slf4j.Logger;
@@ -115,6 +116,8 @@ public class HRUserController extends BaseController {
             systemService.executeSql("update hr_user_treaty set delete_flag = 1 where user_id=?", user.getId());
             //删除加班信息
             systemService.executeSql("update hr_overtime set delete_flag=1 where user_id=?", user.getId());
+            //删除请假信息
+            systemService.executeSql("update hr_leave set delete_flag=1 where user_id=?", user.getId());
 
             user.setDeleteFlag(Globals.Delete_Forbidden);
             systemService.updateEntitie(user);
@@ -151,6 +154,8 @@ public class HRUserController extends BaseController {
                 systemService.executeSql("update hr_user_treaty set delete_flag = 1 where user_id=?", user.getId());
                 //删除加班信息
                 systemService.executeSql("update hr_overtime set delete_flag = 1 where user_id=?", user.getId());
+                //删除请假信息
+                systemService.executeSql("update hr_leave set delete_flag=1 where user_id=?", user.getId());
 
                 user.setDeleteFlag(Globals.Delete_Forbidden);
                 systemService.updateEntitie(user);
@@ -328,6 +333,41 @@ public class HRUserController extends BaseController {
         hrUser.setFormalDate(user.getFormalDate());
         systemService.saveOrUpdate(hrUser);
         return j;
+    }
+
+    /**
+     * 生日提醒
+     */
+    @RequestMapping(params = "goBirthday")
+    public ModelAndView goBirthday() {
+        return new ModelAndView("hr/care/birthday");
+    }
+
+    @RequestMapping(params = "birthday")
+    public void birthday(HRUser user, DataGrid dataGrid, HttpServletRequest request,HttpServletResponse response) {
+        CriteriaQuery cq = new CriteriaQuery(HRUser.class, dataGrid);
+        //查询条件组装器
+        org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, user);
+        String orgIds = request.getParameter("userOrgList.tsDepart.departname");
+        List<String> orgIdList = extractIdListByComma(orgIds);
+        // 获取用户信息的部门
+        if (!CollectionUtils.isEmpty(orgIdList)) {
+            CriteriaQuery subCq = new CriteriaQuery(HRUserOrg.class);
+            subCq.setProjection(Property.forName("user.id"));
+            subCq.in("tsDepart.id", orgIdList.toArray());
+            subCq.add();
+            cq.add(Property.forName("id").in(subCq.getDetachedCriteria()));
+        }
+        TSUser sessionUser = ResourceUtil.getSessionUser();
+        cq.eq("companyId", sessionUser.getCompanyid());
+        cq.eq("deleteFlag", Globals.Delete_Normal);
+
+        Map<String,Object> orderMap = new HashMap<String,Object>();
+        orderMap.put("birthday",SortDirection.desc);
+        cq.setOrder(orderMap);
+        cq.add();
+        this.systemService.getDataGridReturn(cq, true);
+        TagUtil.datagrid(response, dataGrid);
     }
 
     /**

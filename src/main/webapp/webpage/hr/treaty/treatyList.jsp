@@ -6,10 +6,11 @@
         <t:datagrid name="hrTreatyList" checkbox="false" pagination="true" fitColumns="true" title="合同信息"
                     actionUrl="hrTreatyController.do?data" idField="id" fit="true" queryMode="group">
             <t:dgCol title="主键" field="id" hidden="true" queryMode="single" width="120"></t:dgCol>
-            <t:dgCol title="姓名" field="userName" query="true" queryMode="single" width="120"></t:dgCol>
+            <t:dgCol title="姓名" field="userId" dictionary="hr_user,id,name" width="120"></t:dgCol>
+            <t:dgCol title="姓名" field="userName" hidden="true" query="true"></t:dgCol>
             <t:dgCol title="合同编号" field="treatyNo" width="150"></t:dgCol>
-            <t:dgCol title="合同类型" field="treatyType" dictionary="treatyType" width="150"></t:dgCol>
-            <t:dgCol title="签订类型" field="signType" dictionary="signType" width="150"></t:dgCol>
+            <t:dgCol title="合同类型" field="treatyType" dictionary="treatyType" query="true" width="150"></t:dgCol>
+            <t:dgCol title="签订类型" field="signType" dictionary="signType" query="true" width="150"></t:dgCol>
             <t:dgCol title="开始时间" field="treatyStart" formatter="yyyy-MM-dd" width="120"></t:dgCol>
             <t:dgCol title="结束时间" field="treatyEnd" formatter="yyyy-MM-dd" width="120"></t:dgCol>
             <t:dgCol title="操作" field="opt" width="100"></t:dgCol>

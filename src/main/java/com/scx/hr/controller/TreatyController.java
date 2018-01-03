@@ -1,6 +1,8 @@
 package com.scx.hr.controller;
 
+import com.scx.hr.entity.HRUser;
 import com.scx.hr.entity.HRUserTreaty;
+import org.hibernate.criterion.Property;
 import org.jeecgframework.core.common.hibernate.qbc.CriteriaQuery;
 import org.jeecgframework.core.common.model.json.AjaxJson;
 import org.jeecgframework.core.common.model.json.DataGrid;
@@ -48,6 +50,16 @@ public class TreatyController {
         TSUser sessionUser = ResourceUtil.getSessionUser();
         cq.eq("companyId", sessionUser.getCompanyid());
         cq.eq("deleteFlag", Globals.Delete_Normal);
+
+        String userName = request.getParameter("userName");
+        if (StringUtil.isNotEmpty(userName)) {
+            CriteriaQuery subCq = new CriteriaQuery(HRUser.class);
+            subCq.setProjection(Property.forName("id"));
+            subCq.like("name", "%" + userName + "%");
+            subCq.add();
+            cq.add(Property.forName("userId").in(subCq.getDetachedCriteria()));
+        }
+
         cq.add();
         this.systemService.getDataGridReturn(cq, true);
         TagUtil.datagrid(response, dataGrid);
@@ -78,6 +90,8 @@ public class TreatyController {
         if (StringUtil.isNotEmpty(id)) {
             HRUserTreaty treaty = systemService.get(HRUserTreaty.class, id);
             request.setAttribute("treaty", treaty);
+            HRUser hrUser = systemService.get(HRUser.class, treaty.getUserId());
+            request.setAttribute("userName", hrUser.getName());
         }
         return new ModelAndView("hr/treaty/treaty");
     }

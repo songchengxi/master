@@ -6,8 +6,8 @@
         <t:datagrid name="hrLeaveList" checkbox="false" pagination="true" fitColumns="true" title="请假信息"
                     actionUrl="hrLeaveController.do?datagrid" idField="id" fit="true" queryMode="group">
             <t:dgCol title="主键" field="id" hidden="true" queryMode="single" width="120"></t:dgCol>
-            <t:dgCol title="姓名" field="userName" query="true" queryMode="single" width="120"></t:dgCol>
-            <%--<t:dgCol title="部门" field="departName" query="true" queryMode="single" width="150"></t:dgCol>--%>
+            <t:dgCol title="姓名" field="userId" dictionary="hr_user,id,name" width="120"></t:dgCol>
+            <t:dgCol title="姓名" field="userName" hidden="true" query="true"></t:dgCol>
             <t:dgCol title="请假类型" field="leaveType" query="true" queryMode="single" dictionary="leaveType" width="150"></t:dgCol>
             <t:dgCol title="开始时间" field="startTime" formatter="yyyy-MM-dd hh:mm:ss" query="true" queryMode="group" width="120"></t:dgCol>
             <t:dgCol title="结束时间" field="endTime" formatter="yyyy-MM-dd hh:mm:ss" query="true" queryMode="group" width="120"></t:dgCol>

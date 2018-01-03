@@ -960,18 +960,19 @@ public class ListtoMenu {
 		for (TSFunction function : list) {
 			menuString.append("<li>");
 
-			if(function.getFunctionIconStyle()!=null&&!function.getFunctionIconStyle().trim().equals("")){
-				menuString.append("<a href=\"#\" class=\"\" ><i class=\"fa "+function.getFunctionIconStyle()+"\"></i>");
-			}else{
-				menuString.append("<a href=\"#\" class=\"\" ><i class=\"fa fa-columns\"></i>");
+			if (function.getFunctionIconStyle() != null && !function.getFunctionIconStyle().trim().equals("")) {
+				menuString.append("<a href=\"").append(function.getFunctionUrl()).append("\" class=\"J_menuItem\" ><i class=\"fa ").append(function.getFunctionIconStyle()).append("\"></i>");
+			} else {
+				menuString.append("<a href=\"").append(function.getFunctionUrl()).append("\" class=\"J_menuItem\" ><i class=\"fa fa-columns\"></i>");
 			}
 
 			menuString.append("<span class=\"menu-text\">");
 			menuString.append(getMutiLang(function.getFunctionName()));
 			menuString.append("</span>");
-			menuString.append("<span class=\"fa arrow\">");
-			menuString.append("</span>");
-			if(!function.hasSubFunction(map)){
+            if (function.hasSubFunction(map)) {
+                menuString.append("<span class=\"fa arrow\"></span>");
+            }
+            if(!function.hasSubFunction(map)){
 				menuString.append("</a></li>");
 				//menuString.append(getSubMenu(function,1,map));
 			}else{
