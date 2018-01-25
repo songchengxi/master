@@ -11,9 +11,9 @@
             <t:dgCol title="是否系统" field="isSys" hidden="true" width="300"></t:dgCol>
             <t:dgCol title="common.operation" field="opt" width="100"></t:dgCol>
             <t:dgFunOpt funname="queryTypeValue(id,name)" title="common.type.view" urlclass="ace_button"  urlfont="fa-search"></t:dgFunOpt>
-            <t:dgDelOpt url="salaryController.do?delType&id={id}" exp="isSys#ne#Y" title="common.delete" urlclass="ace_button" urlStyle="background-color:#ec4758;" urlfont="fa-trash-o"></t:dgDelOpt>
-            <t:dgToolBar title="common.add.param" langArg="薪酬分类" icon="fa fa-plus" url="salaryController.do?addOrUpdateType" funname="add"></t:dgToolBar>
-            <t:dgToolBar title="common.edit" icon="fa fa-edit" url="salaryController.do?addOrUpdateType" funname="update"></t:dgToolBar>
+            <%--<t:dgDelOpt url="salaryController.do?delType&id={id}" exp="isSys#ne#Y" title="common.delete" urlclass="ace_button" urlStyle="background-color:#ec4758;" urlfont="fa-trash-o"></t:dgDelOpt>--%>
+            <%--<t:dgToolBar title="common.add.param" langArg="薪酬分类" icon="fa fa-plus" url="salaryController.do?addOrUpdateType" funname="add"></t:dgToolBar>--%>
+            <%--<t:dgToolBar title="common.edit" icon="fa fa-edit" url="salaryController.do?addOrUpdateType" funname="update"></t:dgToolBar>--%>
         </t:datagrid>
     </div>
 </div>

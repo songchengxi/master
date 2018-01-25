@@ -90,9 +90,17 @@ public class HRUser implements Serializable {
     @Excel(name = "职称", width = 15)
     private String title;
 
-    //基本工资
-//    @Excel(name = "基本工资", width = 15)
-    private Double baseSalary;
+    //试用期工资（比例）
+    @Excel(name = "试用期工资（比例）", width = 15)
+    private String probationSalary;
+
+    //固定工资
+    @Excel(name = "固定工资", width = 15)
+    private Double fixSalary;
+
+    //奖励工资
+    @Excel(name = "奖励工资", width = 15)
+    private Double rewardSalary;
 
     //员工性质
     @Excel(name = "员工性质", width = 15)
@@ -124,10 +132,6 @@ public class HRUser implements Serializable {
     //在职状态
     @Excel(name = "在职状态", width = 15)
     private String jobStatus;// 3试用期；6正式；9离职
-
-    //合同期限
-//    @Excel(name = "合同期限", width = 15, format = "yyyy-MM-dd")
-    private Date contractTerm;
 
     //工龄
     @Excel(name = "工龄", width = 15)
@@ -336,13 +340,31 @@ public class HRUser implements Serializable {
         this.title = title;
     }
 
-    @Column(name = "BASE_SALARY", nullable = true, scale = 2, length = 32)
-    public Double getBaseSalary() {
-        return this.baseSalary;
+    @Column(name = "probation_salary", nullable = true, length = 2)
+    public String getProbationSalary() {
+        return probationSalary;
     }
 
-    public void setBaseSalary(Double baseSalary) {
-        this.baseSalary = baseSalary;
+    public void setProbationSalary(String probationSalary) {
+        this.probationSalary = probationSalary;
+    }
+
+    @Column(name = "fix_salary", nullable = true, scale = 2, length = 32)
+    public Double getFixSalary() {
+        return fixSalary;
+    }
+
+    public void setFixSalary(Double fixSalary) {
+        this.fixSalary = fixSalary;
+    }
+
+    @Column(name = "reward_salary", nullable = true, scale = 2, length = 32)
+    public Double getRewardSalary() {
+        return rewardSalary;
+    }
+
+    public void setRewardSalary(Double rewardSalary) {
+        this.rewardSalary = rewardSalary;
     }
 
     @Column(name = "quality", nullable = true, length = 10)
@@ -397,15 +419,6 @@ public class HRUser implements Serializable {
 
     public void setJobStatus(String jobStatus) {
         this.jobStatus = jobStatus;
-    }
-
-    @Column(name = "CONTRACT_TERM", nullable = true, length = 32)
-    public java.util.Date getContractTerm() {
-        return this.contractTerm;
-    }
-
-    public void setContractTerm(java.util.Date contractTerm) {
-        this.contractTerm = contractTerm;
     }
 
     @Column(name = "WORK_AGE", nullable = true, scale = 1, length = 32)
@@ -465,6 +478,7 @@ public class HRUser implements Serializable {
                 ", sex='" + sex + '\'' +
                 ", birthday=" + birthday +
                 ", age=" + age +
+                ", idType='" + idType + '\'' +
                 ", idNumber='" + idNumber + '\'' +
                 ", marriageStatus='" + marriageStatus + '\'' +
                 ", nation='" + nation + '\'' +
@@ -476,31 +490,21 @@ public class HRUser implements Serializable {
                 ", photo='" + photo + '\'' +
                 ", post='" + post + '\'' +
                 ", title='" + title + '\'' +
-                ", baseSalary=" + baseSalary +
+                ", probationSalary=" + probationSalary +
+                ", fixSalary=" + fixSalary +
+                ", rewardSalary=" + rewardSalary +
                 ", quality='" + quality + '\'' +
                 ", education='" + education + '\'' +
                 ", major='" + major + '\'' +
                 ", school='" + school + '\'' +
                 ", joinTime=" + joinTime +
                 ", period='" + period + '\'' +
+                ", formalDate=" + formalDate +
                 ", jobStatus='" + jobStatus + '\'' +
-                ", contractTerm=" + contractTerm +
                 ", workAge=" + workAge +
                 ", resume='" + resume + '\'' +
                 ", remark='" + remark + '\'' +
                 ", deleteFlag=" + deleteFlag +
                 '}';
     }
-
-    private String salaryStr;//薪酬信息
-
-    @Transient
-    public String getSalaryStr() {
-        return salaryStr;
-    }
-
-    public void setSalaryStr(String salaryStr) {
-        this.salaryStr = salaryStr;
-    }
-
 }

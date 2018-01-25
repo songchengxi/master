@@ -15,7 +15,9 @@ public class HRUserSalary implements Serializable {
     private String id;
     private String userId;
     private String salaryId;
+    private String salaryCode;//01：固定工资；02：奖励工资
     private Double value;
+    private Double probation;//试用期工资
     private Short deleteFlag;//删除标记   0：存在；1：已删除
 
     @Id
@@ -48,6 +50,15 @@ public class HRUserSalary implements Serializable {
         this.salaryId = salaryId;
     }
 
+    @Column(name = "salary_code", nullable = true, length = 20)
+    public String getSalaryCode() {
+        return salaryCode;
+    }
+
+    public void setSalaryCode(String salaryCode) {
+        this.salaryCode = salaryCode;
+    }
+
     @Column(name = "value", nullable = true)
     public Double getValue() {
         return value;
@@ -55,6 +66,15 @@ public class HRUserSalary implements Serializable {
 
     public void setValue(Double value) {
         this.value = value;
+    }
+
+    @Column(name = "probation", nullable = true)
+    public Double getProbation() {
+        return probation;
+    }
+
+    public void setProbation(Double probation) {
+        this.probation = probation;
     }
 
     @Column(name = "delete_flag")
@@ -72,7 +92,9 @@ public class HRUserSalary implements Serializable {
                 "id='" + id + '\'' +
                 ", userId='" + userId + '\'' +
                 ", salaryId='" + salaryId + '\'' +
+                ", salaryCode='" + salaryCode + '\'' +
                 ", value=" + value +
+                ", probation=" + probation +
                 ", deleteFlag=" + deleteFlag +
                 '}';
     }

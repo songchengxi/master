@@ -8,7 +8,7 @@
             <t:dgCol title="主键" field="id" hidden="true" rowspan="2" width="120"></t:dgCol>
             <t:dgCol title="姓名" field="userName" rowspan="2" query="true" width="120"></t:dgCol>
             <t:dgCol title="部门" field="departName" rowspan="2" query="true" width="150"></t:dgCol>
-            <t:dgCol title="入职日期" field="joinTime" rowspan="2" formatter="yyyy-MM" width="150"></t:dgCol>
+            <t:dgCol title="入职日期" field="joinTime" rowspan="2" formatter="yyyy-MM-dd" width="150"></t:dgCol>
             <t:dgCol title="在职状态" field="jobStatus" rowspan="2" dictionary="jobStatus" width="150"></t:dgCol>
             <t:dgCol title="是否参保" field="insure" rowspan="2" hidden="true" replace="否_N" width="150"></t:dgCol>
             <t:dgCol title="起缴月" field="socialStart" rowspan="2" width="150"></t:dgCol>

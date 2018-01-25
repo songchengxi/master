@@ -137,6 +137,9 @@
     <input type="hidden" name="deleteFlag" value='${user.deleteFlag}'>
     <input type="hidden" name="formalDate" value='${user.formalDate}'>
     <input type="hidden" name="jobStatus" value='${user.jobStatus}'>
+    <input type="hidden" name="probationSalary" value='${user.probationSalary}'>
+    <input type="hidden" name="fixSalary" value='${user.fixSalary}'>
+    <input type="hidden" name="rewardSalary" value='${user.rewardSalary}'>
     <input id="age" name="age" type="hidden" class="form-control" value='${user.age}'/>
     <table style="width: 600px;" cellpadding="0" cellspacing="1" class="formtable">
         <tr>

@@ -32,6 +32,24 @@ public class Company implements Serializable{
 
     private String remark;//备注说明
 
+    private String dayNumType;//月计薪天数方式 1自定义；2标准计薪21.75天；3当月应出勤天数
+    private String dayNum;//月计薪天数
+
+    private String hour;//日计薪小时
+
+    private String sick;//病假工资发放比例
+    private String maternity;//产假工资发放比例
+    private String paternity;//陪产假工资发放比例
+
+    private String weekdayType;//工作日加班计薪方式  1固定薪资；2时薪百分比
+    private String weekday;//工作日加班
+
+    private String playdayType;//休息日加班计薪方式  1固定薪资；2时薪百分比
+    private String playday;//休息日加班
+
+    private String statutoryType;//法定节假日加班计薪方式  1固定薪资；2时薪百分比
+    private String statutory;//法定节假日加班
+
     @Id
     @Column(name = "ID", nullable = false, length = 32)
     public String getId() {
@@ -132,9 +150,117 @@ public class Company implements Serializable{
         this.remark = remark;
     }
 
+    @Column(name = "day_num_type", nullable = true, length = 2)
+    public String getDayNumType() {
+        return dayNumType;
+    }
+
+    public void setDayNumType(String dayNumType) {
+        this.dayNumType = dayNumType;
+    }
+
+    @Column(name = "day_num", nullable = true, length = 10)
+    public String getDayNum() {
+        return dayNum;
+    }
+
+    public void setDayNum(String dayNum) {
+        this.dayNum = dayNum;
+    }
+
+    @Column(name = "hour", nullable = true, length = 2)
+    public String getHour() {
+        return hour;
+    }
+
+    public void setHour(String hour) {
+        this.hour = hour;
+    }
+
+    @Column(name = "sick", nullable = true, length = 5)
+    public String getSick() {
+        return sick;
+    }
+
+    public void setSick(String sick) {
+        this.sick = sick;
+    }
+
+    @Column(name = "maternity", nullable = true, length = 5)
+    public String getMaternity() {
+        return maternity;
+    }
+
+    public void setMaternity(String maternity) {
+        this.maternity = maternity;
+    }
+
+    @Column(name = "paternity", nullable = true, length = 5)
+    public String getPaternity() {
+        return paternity;
+    }
+
+    public void setPaternity(String paternity) {
+        this.paternity = paternity;
+    }
+
+    @Column(name = "weekday_type", nullable = true, length = 2)
+    public String getWeekdayType() {
+        return weekdayType;
+    }
+
+    public void setWeekdayType(String weekdayType) {
+        this.weekdayType = weekdayType;
+    }
+
+    @Column(name = "weekday", nullable = true, length = 5)
+    public String getWeekday() {
+        return weekday;
+    }
+
+    public void setWeekday(String weekday) {
+        this.weekday = weekday;
+    }
+
+    @Column(name = "playday_type", nullable = true, length = 2)
+    public String getPlaydayType() {
+        return playdayType;
+    }
+
+    public void setPlaydayType(String playdayType) {
+        this.playdayType = playdayType;
+    }
+
+    @Column(name = "playday", nullable = true, length = 5)
+    public String getPlayday() {
+        return playday;
+    }
+
+    public void setPlayday(String playday) {
+        this.playday = playday;
+    }
+
+    @Column(name = "statutory_type", nullable = true, length = 2)
+    public String getStatutoryType() {
+        return statutoryType;
+    }
+
+    public void setStatutoryType(String statutoryType) {
+        this.statutoryType = statutoryType;
+    }
+
+    @Column(name = "statutory", nullable = true, length = 5)
+    public String getStatutory() {
+        return statutory;
+    }
+
+    public void setStatutory(String statutory) {
+        this.statutory = statutory;
+    }
+
     @Override
     public String toString() {
-        return "CompanyEntity{" +
+        return "Company{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", industry='" + industry + '\'' +
@@ -146,6 +272,18 @@ public class Company implements Serializable{
                 ", phone='" + phone + '\'' +
                 ", registerAddress='" + registerAddress + '\'' +
                 ", remark='" + remark + '\'' +
+                ", dayNumType='" + dayNumType + '\'' +
+                ", dayNum='" + dayNum + '\'' +
+                ", hour='" + hour + '\'' +
+                ", sick='" + sick + '\'' +
+                ", maternity='" + maternity + '\'' +
+                ", paternity='" + paternity + '\'' +
+                ", weekdayType='" + weekdayType + '\'' +
+                ", weekday='" + weekday + '\'' +
+                ", playdayType='" + playdayType + '\'' +
+                ", playday='" + playday + '\'' +
+                ", statutoryType='" + statutoryType + '\'' +
+                ", statutory='" + statutory + '\'' +
                 '}';
     }
 }

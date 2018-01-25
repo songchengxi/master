@@ -343,30 +343,53 @@ public class HRUserController extends BaseController {
         return new ModelAndView("hr/care/birthday");
     }
 
-    @RequestMapping(params = "birthday")
-    public void birthday(HRUser user, DataGrid dataGrid, HttpServletRequest request,HttpServletResponse response) {
-        CriteriaQuery cq = new CriteriaQuery(HRUser.class, dataGrid);
-        //查询条件组装器
-        org.jeecgframework.core.extend.hqlsearch.HqlGenerateUtil.installHql(cq, user);
-        String orgIds = request.getParameter("userOrgList.tsDepart.departname");
-        List<String> orgIdList = extractIdListByComma(orgIds);
-        // 获取用户信息的部门
-        if (!CollectionUtils.isEmpty(orgIdList)) {
-            CriteriaQuery subCq = new CriteriaQuery(HRUserOrg.class);
-            subCq.setProjection(Property.forName("user.id"));
-            subCq.in("tsDepart.id", orgIdList.toArray());
-            subCq.add();
-            cq.add(Property.forName("id").in(subCq.getDetachedCriteria()));
-        }
+    @RequestMapping(params = "birthdayList")
+    public void birthdayList(DataGrid dataGrid, HttpServletRequest request, HttpServletResponse response) {
         TSUser sessionUser = ResourceUtil.getSessionUser();
-        cq.eq("companyId", sessionUser.getCompanyid());
-        cq.eq("deleteFlag", Globals.Delete_Normal);
 
-        Map<String,Object> orderMap = new HashMap<String,Object>();
-        orderMap.put("birthday",SortDirection.desc);
-        cq.setOrder(orderMap);
-        cq.add();
-        this.systemService.getDataGridReturn(cq, true);
+        String sql = "SELECT NAME, join_time, job_status, departName, age " +
+                " , birthday, birthday_next, DATEDIFF(birthday_next, NOW()) AS diff " +
+                "FROM (SELECT NAME, join_time, job_status, departName, age " +
+                "  , birthday, IF(cur >= today, cur, NEXT) AS birthday_next " +
+                " FROM (SELECT NAME, join_time, job_status, departName, age " +
+                "   , birthday, today, DATE_ADD(cur, INTERVAL IF(DAY(birthday) = 29 " +
+                "   AND DAY(cur) = 28, 1, 0) DAY) AS cur, DATE_ADD(NEXT, INTERVAL IF(DAY(birthday) = 29 " +
+                "   AND DAY(NEXT) = 28, 1, 0) DAY) AS NEXT " +
+                "  FROM (SELECT NAME, join_time, job_status, departName, age " +
+                "    , birthday, today, DATE_ADD(birthday, INTERVAL diff YEAR) AS cur, DATE_ADD(birthday, INTERVAL diff + 1 YEAR) AS NEXT " +
+                "   FROM (SELECT u.*, GROUP_CONCAT(d.departname) AS departName, YEAR(NOW()) - YEAR(birthday) AS diff, DATE(NOW()) AS today " +
+                "    FROM (SELECT u.id AS uid, u.name, u.birthday, u.join_time, u.job_status " +
+                "      , u.age, o.org_id " +
+                "     FROM hr_user u LEFT JOIN hr_user_org o ON u.id = o.user_id " +
+                "     WHERE u.company_id = ? " +
+                "      AND u.delete_flag = 0 " +
+                "     ) u LEFT JOIN t_s_depart d ON u.org_id = d.ID " +
+                "    GROUP BY u.uid " +
+                "    ) a " +
+                "   ) b " +
+                "  ) c " +
+                " ORDER BY birthday_next ASC " +
+                " ) d";
+        List<Map<String, Object>> list = systemService.findForJdbcParam(sql, dataGrid.getPage(), dataGrid.getRows(), sessionUser.getCompanyid());
+        List<Map<String, Object>> birthdayList = new ArrayList<Map<String, Object>>();
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map<String, Object> obj = list.get(i);
+                Map<String, Object> n = new HashMap<String, Object>();
+                n.put("name", String.valueOf(obj.get("name")));
+                n.put("joinTime", String.valueOf(obj.get("join_time")));
+                n.put("jobStatus", String.valueOf(obj.get("job_status")));
+                n.put("departName", String.valueOf(obj.get("departName")));
+                n.put("age", String.valueOf(obj.get("age")));
+                n.put("birthday", String.valueOf(obj.get("birthday")));
+                n.put("diff", String.valueOf(obj.get("diff")));
+                birthdayList.add(n);
+            }
+        }
+        dataGrid.setResults(birthdayList);
+        String countSql = " SELECT count(id) FROM hr_user u WHERE u.company_id = ? AND u.delete_flag = ? ";
+        Long count = systemService.getCountForJdbcParam(countSql, new Object[]{sessionUser.getCompanyid(), 0});
+        dataGrid.setTotal(Integer.parseInt(String.valueOf(count)));
         TagUtil.datagrid(response, dataGrid);
     }
 

@@ -4,6 +4,7 @@ import com.scx.hr.entity.HRSalary;
 import com.scx.hr.entity.HRUser;
 import com.scx.hr.entity.HRUserOrg;
 import com.scx.hr.entity.HRUserSalary;
+import com.scx.system.entity.Company;
 import org.jeecgframework.core.common.hibernate.qbc.CriteriaQuery;
 import org.jeecgframework.core.common.model.json.AjaxJson;
 import org.jeecgframework.core.common.model.json.DataGrid;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -33,11 +35,6 @@ public class SalaryController {
 
     @Autowired
     private SystemService systemService;
-
-    @RequestMapping(params = "setting")
-    public ModelAndView setting() {
-        return new ModelAndView("hr/salary/setting");
-    }
 
     @RequestMapping(params = "typeList")
     public String typeList() {
@@ -122,6 +119,7 @@ public class SalaryController {
         HRSalary parentSalary = systemService.get(HRSalary.class, parentId);
         req.setAttribute("parentId", parentId);
         req.setAttribute("parentName", parentSalary.getName());
+        req.setAttribute("code", parentSalary.getCode());
         if (StringUtil.isNotEmpty(salary.getId())) {
             salary = systemService.getEntity(HRSalary.class, salary.getId());
             req.setAttribute("salary", salary);
@@ -137,6 +135,26 @@ public class SalaryController {
     public AjaxJson del(HRSalary salary, HttpServletRequest request) {
         String message;
         AjaxJson j = new AjaxJson();
+
+        //删除员工的该工资信息
+        systemService.executeSql("delete from hr_user_salary where salary_id = ? ", salary.getId());
+
+        //更新员工薪资信息
+        TSUser sessionUser = ResourceUtil.getSessionUser();
+        String sql = "SELECT s.user_id, s.salary_code, SUM(s.value) AS value " +
+                "FROM hr_user_salary s,hr_user u " +
+                "WHERE u.company_id = ? AND u.id = s.user_id " +
+                "AND s.salary_code IN ('01', '02') " +
+                "GROUP BY s.user_id, s.salary_code";
+        List<Map<String, Object>> salaryList = systemService.findForJdbc(sql, sessionUser.getCompanyid());
+        for (Map<String, Object> map : salaryList) {
+            if ("01".equals(map.get("salary_code"))) {
+                systemService.executeSql("update hr_user set fix_salary = ? where id = ? ", map.get("value"), map.get("user_id"));
+            } else if ("02".equals(map.get("salary_code"))) {
+                systemService.executeSql("update hr_user set reward_salary = ? where id = ? ", map.get("value"), map.get("user_id"));
+            }
+        }
+
         salary = systemService.getEntity(HRSalary.class, salary.getId());
         systemService.delete(salary);
         message = "薪酬: " + salary.getName() + " 删除成功";
@@ -179,6 +197,25 @@ public class SalaryController {
         AjaxJson j = new AjaxJson();
         salary = systemService.get(HRSalary.class, salary.getId());
         if ("Y".equals(salary.getStatus())) {
+            //删除员工的该工资信息
+            systemService.executeSql("delete from hr_user_salary where salary_id = ? ", salary.getId());
+
+            //更新员工薪资信息
+            TSUser sessionUser = ResourceUtil.getSessionUser();
+            String sql = "SELECT s.user_id, s.salary_code, SUM(s.value) AS value " +
+                    "FROM hr_user_salary s,hr_user u " +
+                    "WHERE u.company_id = ? AND u.id = s.user_id " +
+                    "AND s.salary_code IN ('01', '02') " +
+                    "GROUP BY s.user_id, s.salary_code";
+            List<Map<String, Object>> salaryList = systemService.findForJdbc(sql, sessionUser.getCompanyid());
+            for (Map<String, Object> map : salaryList) {
+                if ("01".equals(map.get("salary_code"))) {
+                    systemService.executeSql("update hr_user set fix_salary = ? where id = ? ", map.get("value"), map.get("user_id"));
+                } else if ("02".equals(map.get("salary_code"))) {
+                    systemService.executeSql("update hr_user set reward_salary = ? where id = ? ", map.get("value"), map.get("user_id"));
+                }
+            }
+
             salary.setStatus("N");
             message = salary.getName() + "停用成功";
         } else if ("N".equals(salary.getStatus())) {
@@ -200,33 +237,6 @@ public class SalaryController {
     }
 
     /**
-     * 薪酬信息展示列
-     */
-    @RequestMapping(params = "getCompanySalary")
-    @ResponseBody
-    public AjaxJson getCompanySalary() {
-        AjaxJson j = new AjaxJson();
-        TSUser user = ResourceUtil.getSessionUser();
-        StringBuilder hql = new StringBuilder();
-        hql.append(" select t.id,t.parent.name,t.name from HRSalary t");
-        hql.append(" where t.parent is not null");
-        hql.append(" and t.status =?");
-        hql.append(" and t.companyId =?");
-        List<Object[]> salaryList = systemService.findHql(hql.toString(), "Y", user.getCompanyid());
-
-        StringBuilder columns = new StringBuilder("[");
-        columns.append("{field: 'id', title: '主键', hidden: true},");
-        columns.append("{field: 'name', title: '姓名', width: 150},");
-        for (int i = 0; i < salaryList.size(); i++) {
-            Object[] salary = salaryList.get(i);
-            columns.append("{field: '").append(salary[0]).append("', title: '").append(salary[2]).append("', width: 150},");
-        }
-        columns.append("{field: 'opt', title: '操作', width: 100, formatter: function (value, rec, index) {if (!rec.id) {return '';} var href = '';return href;}}]");
-        j.setObj(columns);
-        return j;
-    }
-
-    /**
      * 薪酬信息数据
      */
     @RequestMapping(params = "userSalaryData")
@@ -239,19 +249,6 @@ public class SalaryController {
         cq.eq("deleteFlag", Globals.Delete_Normal);
         cq.add();
         systemService.getDataGridReturn(cq, true);
-        List<HRUser> results = dataGrid.getResults();
-        for (int i = 0; i < results.size(); i++) {
-            HRUser user = results.get(i);
-            List<HRUserSalary> salaryList = systemService.findByProperty(HRUserSalary.class, "userId", user.getId());
-            StringBuilder sb = new StringBuilder();
-            for (int j = 0; j < salaryList.size(); j++) {
-                sb.append("{\"salaryId\":\"" + salaryList.get(j).getSalaryId() + "\",\"value\":\"" + salaryList.get(j).getValue() + "\"},");
-            }
-            if (sb.length() != 0) {
-                sb = sb.deleteCharAt(sb.length() - 1);
-            }
-            user.setSalaryStr(sb.toString());
-        }
         TagUtil.datagrid(response, dataGrid);
     }
 
@@ -274,6 +271,7 @@ public class SalaryController {
             StringBuilder hql = new StringBuilder();
             hql.append(" from HRSalary t");
             hql.append(" where t.parent is null");
+            hql.append(" and t.code <> '03'");//代扣代缴排除
             hql.append(" and t.companyId =?");
 
             List<HRUserSalary> userSalaries = systemService.findByProperty(HRUserSalary.class, "userId", id);
@@ -291,6 +289,7 @@ public class SalaryController {
                     for (HRUserSalary userSalary : userSalaries) {
                         if (userSalary.getSalaryId().equals(salary.getId())) {
                             salary.setValue(userSalary.getValue());
+                            salary.setProbation(userSalary.getProbation());
                         }
                     }
                 }
@@ -310,23 +309,90 @@ public class SalaryController {
         String id = request.getParameter("id");
         systemService.executeSql("delete from hr_user_salary where user_id=?", id);
 
+        HRUser hrUser = systemService.get(HRUser.class, id);
+        double fix = 0;//固定工资
+        double reward = 0;//奖励工资
+        String hql = " from HRSalary t " +
+                " where t.parent IS NOT NULL " +
+                " and t.status = 'Y' " +
+                " and t.code IN('01','02') " +
+                " and t.companyId = ? ";
+        List<HRSalary> childs = systemService.findHql(hql, hrUser.getCompanyId());
+
         List<HRUserSalary> salaryList = new ArrayList<HRUserSalary>();
         Map<String, String[]> salaryMap = request.getParameterMap();
         for (Map.Entry<String, String[]> next : salaryMap.entrySet()) {
-            if ("id".equals(next.getKey()) || "saveUserSalary".equals(next.getKey()) || "".equals(next.getValue()[0])) {
+            if ("id".equals(next.getKey()) || "probationSalary".equals(next.getKey()) ||
+                    "saveUserSalary".equals(next.getKey())) {
                 continue;
             }
             HRUserSalary userSalary = new HRUserSalary();
             userSalary.setUserId(id);
             userSalary.setSalaryId(next.getKey());
-            userSalary.setValue(Double.valueOf(next.getValue()[0]));
+            userSalary.setValue(oConvertUtils.getDouble(next.getValue()[0], 0));
+            userSalary.setProbation(oConvertUtils.getDouble(next.getValue()[1], 0));
             userSalary.setDeleteFlag(Globals.Delete_Normal);
+
+            for (HRSalary child : childs) {
+                //固定工资
+                if ("01".equals(child.getCode()) && userSalary.getSalaryId().equals(child.getId())) {
+                    userSalary.setSalaryCode("01");
+                    fix += userSalary.getValue();
+                    break;
+                }
+                //奖励工资
+                if ("02".equals(child.getCode()) && userSalary.getSalaryId().equals(child.getId())) {
+                    userSalary.setSalaryCode("02");
+                    reward += userSalary.getValue();
+                    break;
+                }
+            }
             salaryList.add(userSalary);
         }
         if (!salaryList.isEmpty()) {
             systemService.batchSave(salaryList);
             systemService.addLog("编辑薪酬信息", Globals.Log_Type_INSERT, Globals.Log_Leavel_INFO);
         }
+
+        //员工表保存工资信息
+        hrUser.setProbationSalary(request.getParameter("probationSalary"));
+        hrUser.setFixSalary(fix);
+        hrUser.setRewardSalary(reward);
+        systemService.updateEntitie(hrUser);
+        return j;
+    }
+
+    /**
+     * 计薪规则
+     */
+    @RequestMapping(params = "setting")
+    public ModelAndView setting(HttpServletRequest request) {
+        TSUser user = ResourceUtil.getSessionUser();
+        Company company = systemService.get(Company.class, user.getCompanyid());
+        request.setAttribute("company", company);
+        return new ModelAndView("hr/company/salary");
+    }
+
+    /**
+     * 保存月计薪天数，日计薪小时数
+     * 保存请假扣款比例
+     * 保存加班设定
+     */
+    @RequestMapping(params = "saveComSalary", method = RequestMethod.POST)
+    @ResponseBody
+    public AjaxJson saveComSalary(Company company, HttpServletRequest request) {
+        String message = "保存成功";
+        AjaxJson j = new AjaxJson();
+        Company t = systemService.get(Company.class, company.getId());
+        try {
+            MyBeanUtils.copyBeanNotNull2Bean(company, t);
+            systemService.saveOrUpdate(t);
+            systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
+        } catch (Exception e) {
+            message = "保存失败";
+            e.printStackTrace();
+        }
+        j.setMsg(message);
         return j;
     }
 }

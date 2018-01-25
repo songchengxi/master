@@ -114,6 +114,8 @@ public class HRSalary implements Serializable {
 
     private Double value;
 
+    private Double probation;//试用期工资
+
     @Transient
     public Double getValue() {
         return value;
@@ -121,5 +123,14 @@ public class HRSalary implements Serializable {
 
     public void setValue(Double value) {
         this.value = value;
+    }
+
+    @Transient
+    public Double getProbation() {
+        return probation;
+    }
+
+    public void setProbation(Double probation) {
+        this.probation = probation;
     }
 }

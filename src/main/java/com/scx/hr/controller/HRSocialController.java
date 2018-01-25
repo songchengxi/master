@@ -195,7 +195,7 @@ public class HRSocialController {
         String sql = "SELECT * FROM ( " +
                 " SELECT u.*,GROUP_CONCAT(d.departname) AS departName FROM ( " +
                 "  SELECT u.id AS uid,u.name,u.join_time,u.job_status,o.org_id FROM hr_user u LEFT JOIN hr_user_org o ON u.id=o.user_id " +
-                "   WHERE u.COMPANY_ID=? AND u.delete_flag=? AND u.name LIKE ? " +
+                "   WHERE u.company_id=? AND u.delete_flag=? AND u.name LIKE ? " +
                 " ) u LEFT JOIN t_s_depart d ON u.org_id = d.ID GROUP BY u.uid " +
                 ") u LEFT JOIN hr_user_social s ON u.uid=s.user_id";
 
@@ -227,12 +227,8 @@ public class HRSocialController {
             }
         }
         dataGrid.setResults(socialList);
-        String countSql = "SELECT COUNT(*) FROM ( " +
-                " SELECT u.*,GROUP_CONCAT(d.departname) AS departName FROM ( " +
-                "  SELECT u.id AS uid,u.name,u.join_time,u.job_status,o.org_id FROM hr_user u LEFT JOIN hr_user_org o ON u.id=o.user_id " +
-                "   WHERE u.COMPANY_ID=? AND u.delete_flag=? AND u.name LIKE ? " +
-                "  ) u LEFT JOIN t_s_depart d ON u.org_id = d.ID GROUP BY u.uid " +
-                " ) u LEFT JOIN hr_user_social s ON u.uid=s.user_id";
+        String countSql = "SELECT COUNT(id) FROM hr_user u " +
+                " WHERE u.company_id = ? AND u.delete_flag = ? AND u.name LIKE ? ";
         Long count = systemService.getCountForJdbcParam(countSql, new Object[]{user.getCompanyid(), 0, "%" + userName + "%"});
         dataGrid.setTotal(Integer.parseInt(String.valueOf(count)));
         TagUtil.datagrid(response, dataGrid);

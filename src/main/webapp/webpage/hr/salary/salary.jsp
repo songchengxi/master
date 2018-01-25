@@ -12,6 +12,7 @@
     <input name="companyId" type="hidden" value="${salary.companyId}">
     <input name="status" type="hidden" value="${salary.status}">
     <input name="parent.id" type="hidden" value="${parentId}">
+    <input name="code" type="hidden" value="${code}">
     <fieldset class="step">
         <div class="form">
             <label class="Validform_label"> 薪酬分类: </label>

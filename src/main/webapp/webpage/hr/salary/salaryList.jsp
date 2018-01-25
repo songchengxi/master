@@ -21,16 +21,16 @@
     function delSalary(id, status) {
         var url = "salaryController.do?del&id=" + id;
         if ("Y" == status) {
-            createdialog('删除确认 ', '该薪酬已启用，删除将自动去掉该薪酬项目。确定删除该记录吗 ?', url, "salaryList");
+            createdialog('删除确认 ', '将删除所有员工的该薪酬信息（不可恢复）。确定删除吗 ?', url, "salaryList");
         } else {
-            createdialog('删除确认 ', '确定删除该记录吗 ?', url, "salaryList");
+            createdialog('删除确认 ', '将删除所有员工的该薪酬信息（不可恢复）。确定删除吗 ?', url, "salaryList");
         }
     }
 
     function openAndCloseSalary(id, status) {
         var url = "salaryController.do?openAndClose&id=" + id;
         if ("Y" == status) {
-            createdialog('停用确认 ', '确定停用吗 ?', url, "salaryList");
+            createdialog('停用确认 ', '将删除所有员工的该薪酬信息（不可恢复）。确定停用吗 ?', url, "salaryList");
         } else {
             createdialog('启用确认 ', '确定开启吗 ?', url, "salaryList");
         }
