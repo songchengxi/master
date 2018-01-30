@@ -9,6 +9,7 @@ import org.jeecgframework.core.common.model.json.AjaxJson;
 import org.jeecgframework.core.common.model.json.ComboTree;
 import org.jeecgframework.core.common.model.json.DataGrid;
 import org.jeecgframework.core.constant.Globals;
+import org.jeecgframework.core.util.MyBeanUtils;
 import org.jeecgframework.core.util.ResourceUtil;
 import org.jeecgframework.core.util.StringUtil;
 import org.jeecgframework.core.util.YouBianCodeUtil;
@@ -135,15 +136,17 @@ public class CompanyController {
      */
     @RequestMapping(params = "saveCompany")
     @ResponseBody
-    public AjaxJson saveCompany(Company t, HttpServletRequest request) {
+    public AjaxJson saveCompany(Company t, HttpServletRequest request) throws Exception {
         String message;
         AjaxJson j = new AjaxJson();
         if (StringUtil.isNotEmpty(t.getId())) {
-            systemService.saveOrUpdate(t);
+            Company company = systemService.get(Company.class, t.getId());
+            MyBeanUtils.copyBeanNotNull2Bean(t, company);
+            systemService.saveOrUpdate(company);
             TSDepart depart = systemService.get(TSDepart.class, t.getId());
             depart.setDepartname(t.getName());
             systemService.saveOrUpdate(depart);
-            message = "公司: " + t.getName() + "被更新成功";
+            message = "公司: " + t.getName() + " 更新成功";
             systemService.addLog(message, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
         } else {
             String id = UUID.randomUUID().toString().replaceAll("-","");

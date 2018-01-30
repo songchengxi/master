@@ -10,9 +10,10 @@
             <t:dgCol title="行业" field="industry" width="120"></t:dgCol>
             <t:dgCol title="办公地址" field="address" width="120"></t:dgCol>
             <t:dgCol title="发票抬头" field="invoiceTitle" width="120"></t:dgCol>
-            <t:dgCol title="税号" field="taxNum" width="120"></t:dgCol>
+            <t:dgCol title="纳税人识别号（税号）" field="taxNum" width="120"></t:dgCol>
             <t:dgCol title="开户行" field="bank" width="120"></t:dgCol>
             <t:dgCol title="银行账号" field="bankAccount" width="120"></t:dgCol>
+            <t:dgCol title="行号" field="bankCode" width="120"></t:dgCol>
             <t:dgCol title="电话" field="phone" width="120"></t:dgCol>
             <t:dgCol title="注册地址" field="registerAddress" width="120"></t:dgCol>
             <t:dgCol title="备注" field="remark" hidden="true" queryMode="single" width="120"></t:dgCol>

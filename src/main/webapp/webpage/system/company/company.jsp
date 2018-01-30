@@ -35,7 +35,7 @@
             <span class="Validform_checktip"></span>
         </div>
         <div class="form">
-            <label class="Validform_label">税号: </label>
+            <label class="Validform_label">纳税人识别号（税号）: </label>
             <input name="taxNum" class="inputxt" type="text" value="${page.taxNum }">
             <span class="Validform_checktip"></span>
         </div>
@@ -47,6 +47,11 @@
         <div class="form">
             <label class="Validform_label">银行账号: </label>
             <input name="bankAccount" class="inputxt" type="text" value="${page.bankAccount }">
+            <span class="Validform_checktip"></span>
+        </div>
+        <div class="form">
+            <label class="Validform_label">行号: </label>
+            <input name="bankAccount" class="inputxt" type="text" value="${page.bankCode }">
             <span class="Validform_checktip"></span>
         </div>
         <div class="form">

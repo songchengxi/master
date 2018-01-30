@@ -20,11 +20,13 @@ public class Company implements Serializable{
 
     private String invoiceTitle;//发票抬头
 
-    private String taxNum;//税号
+    private String taxNum;//纳税人识别号（税号）
 
     private String bank;//开户行
 
     private String bankAccount;//银行账号
+
+    private String bankCode;//行号
 
     private String phone;//电话
 
@@ -121,6 +123,15 @@ public class Company implements Serializable{
 
     public void setBankAccount(String bankAccount) {
         this.bankAccount = bankAccount;
+    }
+
+    @Column(name = "bank_code", nullable = true, length = 20)
+    public String getBankCode() {
+        return bankCode;
+    }
+
+    public void setBankCode(String bankCode) {
+        this.bankCode = bankCode;
     }
 
     @Column(name = "PHONE", nullable = true, length = 15)
@@ -269,6 +280,7 @@ public class Company implements Serializable{
                 ", taxNum='" + taxNum + '\'' +
                 ", bank='" + bank + '\'' +
                 ", bankAccount='" + bankAccount + '\'' +
+                ", bankCode='" + bankCode + '\'' +
                 ", phone='" + phone + '\'' +
                 ", registerAddress='" + registerAddress + '\'' +
                 ", remark='" + remark + '\'' +
