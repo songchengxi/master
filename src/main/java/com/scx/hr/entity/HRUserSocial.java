@@ -14,6 +14,7 @@ import java.io.Serializable;
 public class HRUserSocial implements Serializable {
 
     private String userId;
+    private String companyId;
     private String socialStart;//起缴月
     private Double socialBase;//社保缴费基数
     private Double socialComVal;//社保公司缴费数额
@@ -31,6 +32,15 @@ public class HRUserSocial implements Serializable {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    @Column(name = "company_id", nullable = false, length = 36)
+    public String getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(String companyId) {
+        this.companyId = companyId;
     }
 
     @Column(name = "SOCIAL_START", nullable = true, length = 10)
@@ -108,8 +118,9 @@ public class HRUserSocial implements Serializable {
     @Override
     public String toString() {
         return "HRUserSocial{" +
-                "userId='" + userId + '\'' +
-                ", socialStart=" + socialStart +
+                "userId='" + userId +
+                ", companyId='" + companyId +
+                ", socialStart='" + socialStart +
                 ", socialBase=" + socialBase +
                 ", socialComVal=" + socialComVal +
                 ", socialUserVal=" + socialUserVal +

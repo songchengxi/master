@@ -143,7 +143,7 @@ public class SalaryController {
         TSUser sessionUser = ResourceUtil.getSessionUser();
         String sql = "SELECT s.user_id, s.salary_code, SUM(s.value) AS value " +
                 "FROM hr_user_salary s,hr_user u " +
-                "WHERE u.company_id = ? AND u.id = s.user_id " +
+                "WHERE u.company_id = ? AND u.delete_flag = 0 AND u.job_status <> '9' AND u.id = s.user_id " +
                 "AND s.salary_code IN ('01', '02') " +
                 "GROUP BY s.user_id, s.salary_code";
         List<Map<String, Object>> salaryList = systemService.findForJdbc(sql, sessionUser.getCompanyid());
@@ -204,7 +204,7 @@ public class SalaryController {
             TSUser sessionUser = ResourceUtil.getSessionUser();
             String sql = "SELECT s.user_id, s.salary_code, SUM(s.value) AS value " +
                     "FROM hr_user_salary s,hr_user u " +
-                    "WHERE u.company_id = ? AND u.id = s.user_id " +
+                    "WHERE u.company_id = ? AND u.delete_flag = 0 AND u.job_status <> '9' AND u.id = s.user_id " +
                     "AND s.salary_code IN ('01', '02') " +
                     "GROUP BY s.user_id, s.salary_code";
             List<Map<String, Object>> salaryList = systemService.findForJdbc(sql, sessionUser.getCompanyid());

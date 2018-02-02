@@ -233,6 +233,7 @@ public class HRUserController extends BaseController {
             //初始化员工社保信息
             HRUserSocial userSocial = new HRUserSocial();
             userSocial.setUserId(user.getId());
+            userSocial.setCompanyId(user.getCompanyId());
             systemService.save(userSocial);
 
             message = "员工信息添加成功";
@@ -314,8 +315,8 @@ public class HRUserController extends BaseController {
     /**
      * 转正页面
      */
-    @RequestMapping(params = "goUpdateFormal")
-    public ModelAndView goUpdateFormal(HttpServletRequest request, String id) {
+    @RequestMapping(params = "goFormal")
+    public ModelAndView goFormal(HttpServletRequest request, String id) {
         HRUser user = systemService.get(HRUser.class, id);
         request.setAttribute("user", user);
         return new ModelAndView("hr/user/formal");
@@ -324,14 +325,46 @@ public class HRUserController extends BaseController {
     /**
      * 转正确认
      */
-    @RequestMapping(params = "updateFormal")
+    @RequestMapping(params = "doFormal")
     @ResponseBody
-    public AjaxJson updateFormal(HRUser user) {
+    public AjaxJson doFormal(HRUser user) {
         AjaxJson j = new AjaxJson();
+        String msg;
         HRUser hrUser = systemService.get(HRUser.class, user.getId());
         hrUser.setJobStatus("6");
         hrUser.setFormalDate(user.getFormalDate());
         systemService.saveOrUpdate(hrUser);
+        msg = hrUser.getName() + " 转正成功";
+        systemService.addLog(msg, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
+        j.setMsg(msg);
+        return j;
+    }
+
+    /**
+     * 离职界面
+     */
+    @RequestMapping(params = "goLeave")
+    @ResponseBody
+    public ModelAndView goLeave(String id, HttpServletRequest request) {
+        request.setAttribute("id", id);
+        return new ModelAndView("hr/user/leave");
+    }
+
+    /**
+     * 离职
+     */
+    @RequestMapping(params = "doLeave")
+    @ResponseBody
+    public AjaxJson doLeave(HRUser user) {
+        AjaxJson j = new AjaxJson();
+        String msg;
+        HRUser hrUser = systemService.get(HRUser.class, user.getId());
+        hrUser.setJobStatus("9");
+        hrUser.setLeaveDate(user.getLeaveDate());
+        systemService.updateEntitie(hrUser);
+        msg = hrUser.getName() + " 离职成功";
+        systemService.addLog(msg, Globals.Log_Type_UPDATE, Globals.Log_Leavel_INFO);
+        j.setMsg(msg);
         return j;
     }
 

@@ -129,6 +129,9 @@ public class HRUser implements Serializable {
     @Excel(name = "转正时间", width = 15)
     private Date formalDate;
 
+    //离职时间
+    private Date leaveDate;
+
     //在职状态
     @Excel(name = "在职状态", width = 15)
     private String jobStatus;// 3试用期；6正式；9离职
@@ -185,6 +188,15 @@ public class HRUser implements Serializable {
 
     public void setFormalDate(Date formalDate) {
         this.formalDate = formalDate;
+    }
+
+    @Column(name = "leave_date", nullable = true)
+    public Date getLeaveDate() {
+        return leaveDate;
+    }
+
+    public void setLeaveDate(Date leaveDate) {
+        this.leaveDate = leaveDate;
     }
 
     @Column(name = "COMPANY_ID", nullable = true, length = 36)
@@ -470,40 +482,41 @@ public class HRUser implements Serializable {
     @Override
     public String toString() {
         return "HRUser{" +
-                "id='" + id + '\'' +
-                ", companyId='" + companyId + '\'' +
-                ", jobNumber='" + jobNumber + '\'' +
-                ", name='" + name + '\'' +
+                "id='" + id +
+                ", companyId='" + companyId +
+                ", jobNumber='" + jobNumber +
+                ", name='" + name +
                 ", userOrgList=" + userOrgList +
-                ", sex='" + sex + '\'' +
+                ", sex='" + sex +
                 ", birthday=" + birthday +
                 ", age=" + age +
-                ", idType='" + idType + '\'' +
-                ", idNumber='" + idNumber + '\'' +
-                ", marriageStatus='" + marriageStatus + '\'' +
-                ", nation='" + nation + '\'' +
-                ", nativePlace='" + nativePlace + '\'' +
-                ", politics='" + politics + '\'' +
-                ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
-                ", address='" + address + '\'' +
-                ", photo='" + photo + '\'' +
-                ", post='" + post + '\'' +
-                ", title='" + title + '\'' +
-                ", probationSalary=" + probationSalary +
+                ", idType='" + idType +
+                ", idNumber='" + idNumber +
+                ", marriageStatus='" + marriageStatus +
+                ", nation='" + nation +
+                ", nativePlace='" + nativePlace +
+                ", politics='" + politics +
+                ", email='" + email +
+                ", phone='" + phone +
+                ", address='" + address +
+                ", photo='" + photo +
+                ", post='" + post +
+                ", title='" + title +
+                ", probationSalary='" + probationSalary +
                 ", fixSalary=" + fixSalary +
                 ", rewardSalary=" + rewardSalary +
-                ", quality='" + quality + '\'' +
-                ", education='" + education + '\'' +
-                ", major='" + major + '\'' +
-                ", school='" + school + '\'' +
+                ", quality='" + quality +
+                ", education='" + education +
+                ", major='" + major +
+                ", school='" + school +
                 ", joinTime=" + joinTime +
-                ", period='" + period + '\'' +
+                ", period='" + period +
                 ", formalDate=" + formalDate +
-                ", jobStatus='" + jobStatus + '\'' +
+                ", leaveDate=" + leaveDate +
+                ", jobStatus='" + jobStatus +
                 ", workAge=" + workAge +
-                ", resume='" + resume + '\'' +
-                ", remark='" + remark + '\'' +
+                ", resume='" + resume +
+                ", remark='" + remark +
                 ", deleteFlag=" + deleteFlag +
                 '}';
     }
